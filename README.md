@@ -14,13 +14,13 @@ $ conda env create -f monkey_frog.yml
 Before running any code, make sure to enter your virtual environment
 
 ```
-$ source activate monkey_frog
+$ conda activate monkey_frog
 ```
 
 When finished for the day
 
 ```
-$ source deactivate
+$ conda deactivate
 ```
 
 will get you out of your virtual environment
