@@ -160,15 +160,6 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
     if not isinstance(seg, neo.core.Segment):
         raise TypeError('seg variable must be a segment object')
 
-    # Extract epoch object
-    try:
-        epoch = filter(lambda x: x.name == epoch_name, seg.epochs)[0]
-        epoch_mask = epoch.times
-    except:
-        raise ValueError("""%s not in segment object. Did you not run 
-            GroupTrialsByEpoch or misspell the epoch_name?"""
-            % epoch_name)
-
     # Extract analog signal object
     try:
         signal = filter(lambda x: x.name == analog_ch_name, seg.analogsignals)[-1]
@@ -192,6 +183,20 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
         raise ValueError("""There is no trials dataframe in the segment object.
             Did you run ProcessTrials?""")
 
+    # Extract epoch object
+    if epoch_name == 'all':
+        epoch_name = trials.results.unique()
+    elif isinstance(epoch_name, str):
+        epoch_name = [epoch_name]
+
+    try:
+        epochs = filter(lambda x: x.name in epoch_name, seg.epochs)
+        epoch_mask = np.concatenate([epoch.times for epoch in epochs]) * pq.s
+    except:
+        raise ValueError("""%s not in segment object. Did you not run 
+            GroupTrialsByEpoch or misspell the epoch_name?"""
+            % epoch_name)
+
     # converts pre and post windows to seconds
     prewindow = prewindow * pq.s 
     postwindow = postwindow * pq.s
@@ -212,17 +217,18 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
 
     # Gets trial indices for that epoch
     trial_indices = trials.loc[trials.time.isin(epoch_mask), 'trial_idx'].unique()
-    # Make trials column names
-    # Starts at 1 and increments
-    trial_names = ['trial' + str(ind + 1) for ind in range(len(trial_indices))]
-    # Starts at the actual trial number
-    #trial_names = ['trial' + str(ind) for ind in trial_indices]
     
     # Time when event of interest occured
     trial_start = epoch.times
     trial_end = trial_start + epoch.durations
     event_time = trials.loc[(trials[event_mask] == event) & \
         (trials.trial_idx.isin(trial_indices)), 'time'].unique() * pq.s
+
+    # Make trials column names
+    # Starts at 1 and increments
+    trial_names = ['trial' + str(ind + 1) for ind in range(event_time.shape[0])]
+    # Starts at the actual trial number
+    #trial_names = ['trial' + str(ind) for ind in trial_indices]
 
     # Get time window around event
     if window_type == 'event':
