@@ -211,7 +211,8 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
             Is event_type correct?""" % event)
 
     # Gets trial indices for that epoch
-    trial_indices = trials.loc[trials.time.isin(epoch_mask), 'trial_idx'].unique()
+    trial_indices = trials.loc[(trials[event_mask] == event) & \
+        (trials.time.isin(epoch_mask)), 'trial_idx'].unique()
     # Make trials column names
     # Starts at 1 and increments
     trial_names = ['trial' + str(ind + 1) for ind in range(len(trial_indices))]
