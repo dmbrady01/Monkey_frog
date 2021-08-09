@@ -31,8 +31,14 @@ sns.set_style('darkgrid')
 #######################################################################
 ############ KEVIN SECTION ##################################
 ### For new rig/Kevin's data
-deltaf_options = {}
-z_score_before_alignment = False
+deltaf_options = {
+    'detrend': 'savgol_from_reference',
+    'signal_window_length': None,
+    'mode': 'median', 
+    'subtract': 'True',
+    'period': [40, 306290]
+}
+z_score_before_alignment = True
 signal_channel = '465A 1' # Name of our signal channel
 reference_channel = '405A 1' # Name of our reference channel
 
@@ -43,24 +49,24 @@ path_to_ttl_event_params = [
 ]
 #### WHERE IS THE DATA
 dpaths = [
-    '/Users/DB/Development/Monkey_frog/data/FirstFibPho-180817-160254'
+    '/Users/DB/Development/Monkey_frog/data/FirstFibPho-210808'
 ]
 
 analysis_blocks = [
     {
-        'epoch_name': 'correct',
-        'event': 'correct',
-        'prewindow': 10,
-        'postwindow': 30,
-        'z_score_window': [-8, -3],
+        'epoch_name': ['correct', 'incorrect'],
+        'event': 'iti_start',
+        'prewindow': 3,
+        'postwindow': 10,
+        'z_score_window': [],
         'downsample': 10,
         'quantification': 'mean', # options are AUC, median, and mean
-        'baseline_window': [-5, -2],
-        'response_window': [1, 4],
+        'baseline_window': [-5, 0],
+        'response_window': [0, 5],
         'save_file_as': 'correct_processed',
         'plot_paramaters': {
             'heatmap_range': [None, None],
-            'smoothing_window': 500
+            'smoothing_window': 200
         }
     },
     # {
@@ -236,9 +242,9 @@ for dpath_ind, dpath in enumerate(dpaths):
 
             lookup = {}
             for channel in ['Filtered_signal', 'Filtered_reference', 'Detrended', 'DeltaF_F_or_Z_score']:
-                print('\nAnalyzing "%s" trials centered around "%s". Channel: "%s" \n' % (epoch_name, event, channel))
+                print('\nAnalyzing "{}" trials centered around "{}". Channel: "{}" \n'.format(epoch_name, event, channel))
 
-                dict_name = epoch_name +  '_' + channel
+                dict_name = "{}_{}".format(epoch_name, channel)
                 lookup[channel] = dict_name 
                 PrintNoNewLine('Centering trials and analyzing...')
                 AlignEventsAndSignals(seg=segment, epoch_name=epoch_name, analog_ch_name=channel, 
@@ -284,7 +290,7 @@ for dpath_ind, dpath in enumerate(dpaths):
             # fig.set_size_inches(12, 12)
 
         ############################### PLOT AVERAGE EVOKED RESPONSE ######################
-            PrintNoNewLine('Calculating average filtered responses for %s trials...' % epoch_name)
+            PrintNoNewLine('Calculating average filtered responses for {} trials...'.format(epoch_name))
             signal_mean = signal.mean(axis=1)
             reference_mean = reference.mean(axis=1)
 
