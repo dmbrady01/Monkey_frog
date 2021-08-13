@@ -1,0 +1,56 @@
+{
+    "deltaf_options": {
+        "detrend": "savgol_from_reference",
+        "signal_window_length": null,
+        "mode": "median",
+        "subtract": "True",
+        "period": [40, 306290]
+    },
+    "z_score_before_alignment": true,
+    "signal_channel": "465A 1",
+    "reference_channel": "405A 1",
+    "mode": "TTL",
+    "path_to_ttl_event_params": [
+        "imaging_analysis/ttl_event_params_new_rig.json"
+    ],
+    "path_to_social_excel": [
+        null
+    ],
+    "dpaths": [
+            "/Users/DB/Development/Monkey_frog/data/FirstFibPho-210809"
+    ],
+    "analysis_blocks": [
+        {
+            "epoch_name": ["correct"],
+            "event": "stimulus_appears",
+            "prewindow": 3,
+            "postwindow": 10,
+            "z_score_window": [],
+            "downsample": 10,
+            "quantification": "mean",
+            "baseline_window": [-5, 0],
+            "response_window": [0, 5],
+            "save_file_as": "correct_processed",
+            "plot_paramaters": {
+                "heatmap_range": [null, null],
+                "smoothing_window": 200
+            }
+        },
+        {
+            "epoch_name": "correct",
+            "event": "iti_start",
+            "prewindow": 10,
+            "postwindow": 30,
+            "z_score_window": [-10, -5],
+            "downsample": 10,
+            "quantification": "AUC",
+            "baseline_window": [-6, -3],
+            "response_window": [0, 3],
+            "save_file_as": "iti_start_processed",
+            "plot_paramaters": {
+                "heatmap_range": [-2, 2],
+                "smoothing_window": 1000
+            }
+        }
+    ]
+}
