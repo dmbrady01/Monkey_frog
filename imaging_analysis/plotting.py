@@ -38,7 +38,7 @@ def PlotAverageSignal(traces, reference=None, mode='raw', events=[0, 5], sem=Tru
         else:
             error = traces['sd']
 
-    if not isinstance(reference, types.NoneType):
+    if not isinstance(reference, type(None)):
         if mode == 'raw':
             avg_ref = reference.mean(axis=1)
             if sem:

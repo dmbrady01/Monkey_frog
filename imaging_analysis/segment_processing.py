@@ -162,7 +162,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
 
     # Extract analog signal object
     try:
-        signal = filter(lambda x: x.name == analog_ch_name, seg.analogsignals)[-1]
+        signal = [x for x in seg.analogsignals if x.name == analog_ch_name][-1]
     except:
         raise ValueError("""%s not in segment object. Did you not run 
             ProcessSignalData or misspell the analog_ch_name?"""
@@ -170,7 +170,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
 
     # Extract events object
     try:
-        events = filter(lambda x: x.name == event_ch_name, seg.events)[0]
+        events = [x for x in seg.events if x.name == event_ch_name][0]
     except:
         raise ValueError("""%s not in segment object. Did you not run 
             ProcessEvents or misspell the event_ch_name?"""
@@ -190,7 +190,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
         epoch_name = [epoch_name]
 
     try:
-        epochs = filter(lambda x: x.name in epoch_name, seg.epochs)
+        epochs = [x for x in seg.epochs if x.name in epoch_name]
         epoch_mask = np.concatenate([epoch.times for epoch in epochs]) * pq.s
     except:
         raise ValueError("""%s not in segment object. Did you not run 
@@ -219,8 +219,8 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
     trial_indices = trials.loc[trials.time.isin(epoch_mask), 'trial_idx'].unique()
     
     # Time when event of interest occured
-    trial_start = epoch.times
-    trial_end = trial_start + epoch.durations
+    trial_start = np.concatenate([epoch.times for epoch in epochs]) * pq.s
+    trial_end = trial_start + np.concatenate([epoch.durations for epoch in epochs]) * pq.s
     event_time = trials.loc[(trials[event_mask] == event) & \
         (trials.trial_idx.isin(trial_indices)), 'time'].unique() * pq.s
 
@@ -307,7 +307,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
                     (evt_times - centering_event)]
                 event_df.iloc[evt_indices, trial] = evt_labels
     # Get rid of bad trials
-    bad_trial_mask = ~pd.Index(range(signal_df.columns.shape[0])).isin(bad_trials)
+    bad_trial_mask = ~pd.Index(list(range(signal_df.columns.shape[0]))).isin(bad_trials)
     signal_df = signal_df.iloc[:, bad_trial_mask]
     event_df = event_df.iloc[:, bad_trial_mask]
     # Do forward fill and backward fill for stray NaN values if clip=False

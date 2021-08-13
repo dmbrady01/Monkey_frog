@@ -440,7 +440,7 @@ class GetBehavioralEvents(object):
 
                 prev_time = curr_time
 
-        return datadict.items()
+        return list(datadict.items())
 
     def run(self):
         self.set_savefolder()

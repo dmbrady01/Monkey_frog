@@ -85,7 +85,7 @@ except IOError:
     # Iterates through each segment in seglist. Right now, there is only one segment
     for segment in seglist:
         # Extracts the sampling rate from the signal channel
-        sampling_rate = filter(lambda x: x.name == signal_channel, segment.analogsignals)[0].sampling_rate
+        sampling_rate = [x for x in segment.analogsignals if x.name == signal_channel][0].sampling_rate
         # Appends an analog signal object that is delta F/F. The name of the channel is
         # specified by deltaf_ch_name above. It is calculated using the function
         # NormalizeSignal in signal_processing.py. As of right now it:
@@ -101,7 +101,7 @@ except IOError:
                         name='DeltaF_F', fs=sampling_rate, highcut=lowpass_filter, **deltaf_options)
         print('Done!')
         PrintNoNewLine('Plotting data...')
-        signal = filter(lambda x: x.name == 'DeltaF_F', segment.analogsignals)[0]
+        signal = [x for x in segment.analogsignals if x.name == 'DeltaF_F'][0]
         PlotDeltaFOverF(signal, save=save_plot, title=plot_title, color=color, 
             alpha=alpha, dpath=dpath, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, 
             smoothing_window=smoothing_window, sampling_frequency=sampling_rate,

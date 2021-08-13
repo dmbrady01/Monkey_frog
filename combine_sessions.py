@@ -71,7 +71,7 @@ for group in groupings:
     smoothing_window = group['plot_paramaters']['smoothing_window']
     yrange = group['plot_paramaters']['yrange']
 
-    print('Combining sessions of to %s' % (save_path))
+    print(('Combining sessions of to %s' % (save_path)))
     # See if save_path exists, if not creates a folder
     if not os.path.isdir(save_path):
         os.mkdir(save_path)
@@ -96,7 +96,7 @@ for group in groupings:
 
     # Check metadata
     metadict = {}
-    for key in metadata[0].keys():
+    for key in list(metadata[0].keys()):
         value_list = {tuple(x[key]) if isinstance(x[key], list) else x[key] for x in metadata}
         if (len(value_list) != 1) and ('sampling_rate' not in key):
             raise ValueError('You have different analysis parameters (quantification type, baseline window, response window, etc.). Please run process_data.py again with similar values.')
@@ -110,7 +110,7 @@ for group in groupings:
     zscores = zscores.ffill().bfill()
 
     # Recalculate sampling rate because of backward/forward fills
-    metadict[u'downsampled_sampling_rate'] = zscores.shape[0]/(np.abs(zscores.index[0]) + np.abs(zscores.index[-1]))
+    metadict['downsampled_sampling_rate'] = zscores.shape[0]/(np.abs(zscores.index[0]) + np.abs(zscores.index[-1]))
 
     # Combine point estimates into dataframe
     pe_df = pd.concat([pd.read_csv(x, index_col=0) for x in point_estimates], axis=0)

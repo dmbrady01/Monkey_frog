@@ -52,7 +52,7 @@ def StateMapping(df, state_csv='markov/states.csv', fixed_states_csv=False):
                 columns=['states']), ignore_index=True)
             state_code.to_csv(state_csv, index=False)
 
-    return {y:x for x, y in state_code['states'].to_dict().iteritems()}
+    return {y:x for x, y in state_code['states'].to_dict().items()}
 
 def ExcelToStateMapping(excel_file, column='Bout type', state_csv='markov/states.csv', 
         fixed_states_csv=False, resample=False, resample_window=1):

@@ -30,8 +30,8 @@ def process_events(seg, tolerence):
                 evtlist.append(dict(times=evtarr.times,
                                     ch=int(evtarr.name[-1]) - 1))
         while any(event_array['times'].size for event_array in evtlist):
-            evtlist_non_empty = filter(lambda x: x['times'].size, evtlist)
-            first_elements = map(lambda x: x['times'][0], evtlist_non_empty)
+            evtlist_non_empty = [x for x in evtlist if x['times'].size]
+            first_elements = [x['times'][0] for x in evtlist_non_empty]
             cur_first = np.amin(first_elements) * pq.s
             cur_event = 0
             cur_event_list = [0] * len(evtlist)
@@ -122,8 +122,8 @@ def plot_events(seg, **kwargs):
 
 
 def plot_segment(seg, analist=(), spklist=(), epchlist=(), showevent=None, embedpeaks=True, recenter=None):
-    anas = filter(lambda x: x.name in analist, seg.analogsignals)
-    spks = filter(lambda x: x.name in spklist, seg.spiketrains)
+    anas = [x for x in seg.analogsignals if x.name in analist]
+    spks = [x for x in seg.spiketrains if x.name in spklist]
     evts = next((e for e in seg.events if e.name == 'Events'), None)
     if not evts:
         warnings.warn("No Events presented in data. Turning showevent off.")
@@ -240,7 +240,7 @@ def trim_signals(sigs, size=None):
 
 
 def z_score(seg, varname):
-    varlist = filter(lambda v: v.name in varname, seg.analogsignals)
+    varlist = [v for v in seg.analogsignals if v.name in varname]
     zlist = list()
     for sig in varlist:
         z_sig = cp.copy(sig)
@@ -251,7 +251,7 @@ def z_score(seg, varname):
 
 
 def norm_data(seg, varname):
-    varlist = filter(lambda v: v.name in varname, seg.analogsignals)
+    varlist = [v for v in seg.analogsignals if v.name in varname]
     normlist = list()
     for sig in varlist:
         background = ssp.savgol_filter(sig, 3001, 1, axis=0)
@@ -265,7 +265,7 @@ def norm_data(seg, varname):
 def find_peak(seg, varname):
     for i, sig in enumerate(seg.analogsignals):
         if sig.name in varname:
-            print("finding peaks for "+sig.name)
+            print(("finding peaks for "+sig.name))
             p = ssp.find_peaks_cwt(sig.flatten(), np.arange(100, 550),
                                    min_length=10)
             peaks = p / sig.sampling_rate + sig.t_start

@@ -92,7 +92,7 @@ class TestTruncateSignals(unittest.TestCase):
         trunc_sig = TruncateSignals(self.signals, end=self.signal_end)
         t_stops = [x.t_stop for x in trunc_sig]
         true_stops = [x.t_stop - self.signal_end * pq.s for x in self.signals]
-        paired = zip(t_stops, true_stops)
+        paired = list(zip(t_stops, true_stops))
         self.assertTrue(all(x == y for x, y in paired))
 
 

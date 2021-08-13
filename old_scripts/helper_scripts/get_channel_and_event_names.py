@@ -29,5 +29,5 @@ for segment in seglist:
     channel_names = [x.name for x in segment.analogsignals]
     event_names = [x.name for x in segment.events]
 
-    print("The channel names are %s and event names are %s\n"
-        % (str(channel_names), str(event_names)))
+    print(("The channel names are %s and event names are %s\n"
+        % (str(channel_names), str(event_names))))

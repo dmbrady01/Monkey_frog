@@ -83,7 +83,7 @@ class GetBehavioralSequences(object):
 
     @staticmethod
     def map_and_eval(value_list, eval_list):
-        zipped_list = zip(value_list, eval_list)
+        zipped_list = list(zip(value_list, eval_list))
         return all([eval(str(x)+y) if pd.notna(x) else False for x, y in zipped_list])
 
     @staticmethod
@@ -93,9 +93,9 @@ class GetBehavioralSequences(object):
     def match_sequence(self, df, column, sequence, fnc='map_and_eval'):
         iterated_sequences = self.chain_columns_to_list(df, column, len(sequence))
         if fnc == 'map_and_eval':
-            mask = map(lambda x: self.map_and_eval(x, sequence), iterated_sequences)
+            mask = [self.map_and_eval(x, sequence) for x in iterated_sequences]
         else:
-            mask = map(lambda x: self.equivalent(x, sequence), iterated_sequences)
+            mask = [self.equivalent(x, sequence) for x in iterated_sequences]
         return pd.Series(mask)
 
     @staticmethod

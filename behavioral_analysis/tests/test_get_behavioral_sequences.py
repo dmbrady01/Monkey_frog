@@ -13,12 +13,12 @@ class TestSimpleSequenceDict(unittest.TestCase):
         self.assertTrue(all([isinstance(x, dict) for x in SEQUENCE_DICT]))
 
     def test_keys_of_each_dict(self):
-        self.assertTrue(all(['sequence' in x.keys() for x in SEQUENCE_DICT]))
-        self.assertTrue(all(['name' in x.keys() for x in SEQUENCE_DICT]))
-        self.assertTrue(all(['Bout duration' in x.keys() for x in SEQUENCE_DICT]))
-        self.assertTrue(all(['Latency to next bout start' in x.keys() for x in SEQUENCE_DICT]))
-        self.assertTrue(all(['Bout start' in x.keys() for x in SEQUENCE_DICT]))
-        self.assertTrue(all(['Bout end' in x.keys() for x in SEQUENCE_DICT]))
+        self.assertTrue(all(['sequence' in list(x.keys()) for x in SEQUENCE_DICT]))
+        self.assertTrue(all(['name' in list(x.keys()) for x in SEQUENCE_DICT]))
+        self.assertTrue(all(['Bout duration' in list(x.keys()) for x in SEQUENCE_DICT]))
+        self.assertTrue(all(['Latency to next bout start' in list(x.keys()) for x in SEQUENCE_DICT]))
+        self.assertTrue(all(['Bout start' in list(x.keys()) for x in SEQUENCE_DICT]))
+        self.assertTrue(all(['Bout end' in list(x.keys()) for x in SEQUENCE_DICT]))
 
 class TestGetBehavioralSequences(unittest.TestCase):
 

@@ -14,7 +14,7 @@ __lastmodified__ = "09Aug2018"
 import numpy as np
 import pandas as pd
 import os
-from markov.markov import ProcessExcelToCountMatrix, AddingCountMatrices, StochasticMatrix, ExcelToStateMapping, ReadStateCsv
+from .markov.markov import ProcessExcelToCountMatrix, AddingCountMatrices, StochasticMatrix, ExcelToStateMapping, ReadStateCsv
 
 cohorts = [
     {

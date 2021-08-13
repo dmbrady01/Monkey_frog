@@ -198,10 +198,10 @@ def SmoothSignal(x, window_len=11, window='flat'):
     """
 
     if x.ndim != 1:
-        raise ValueError, "SmoothSignal only accepts 1 dimension arrays."
+        raise ValueError("SmoothSignal only accepts 1 dimension arrays.")
 
     if x.size < window_len:
-        raise ValueError, "Input vector needs to be bigger than window size."
+        raise ValueError("Input vector needs to be bigger than window size.")
 
 
     if window_len<3:
@@ -209,7 +209,7 @@ def SmoothSignal(x, window_len=11, window='flat'):
 
 
     if not window in ['flat', 'hanning', 'hamming', 'bartlett', 'blackman']:
-        raise ValueError, "Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'"
+        raise ValueError("Window is on of 'flat', 'hanning', 'hamming', 'bartlett', 'blackman'")
 
 
     s = np.r_[x[window_len-1:0:-1],x,x[-2:-window_len-1:-1]]
@@ -220,7 +220,7 @@ def SmoothSignal(x, window_len=11, window='flat'):
         w = eval('np.'+ window +'(window_len)')
 
     y = np.convolve(w/w.sum(), s , mode='valid')
-    y = y[(window_len/2-1):-(window_len/2)]
+    y = y[(int(window_len/2)-1):-int(window_len/2)]
     return y[:x.shape[0]]
 
 def SmoothSignalWithPeriod(x, sampling_rate=None, ms_bin=None, window='flat'):
@@ -246,7 +246,7 @@ def PolyfitWindow(reference, signal=None, window_length=3001, return_projection=
     Savitzky-Golay filter. 
     """
 
-    if not isinstance(signal, types.NoneType):
+    if not isinstance(signal, type(None)):
         x = reference
         y = signal
     else:
@@ -275,7 +275,7 @@ def PolyfitWindow(reference, signal=None, window_length=3001, return_projection=
         else:
             return (y - x_out).reshape(shape)
     else:
-        fits = np.array([np.polyfit(x[:, i], y[:, i],1) for i in xrange(y.shape[1])])
+        fits = np.array([np.polyfit(x[:, i], y[:, i],1) for i in range(y.shape[1])])
         Y_fit_all = np.array([np.polyval(fits[i], x[:,i]) for i in np.arange(x.shape[1])]).T
         Y_df_all = y - Y_fit_all
         return Y_df_all
@@ -284,7 +284,7 @@ def PolyfitWindow(reference, signal=None, window_length=3001, return_projection=
 
 def ExponentialFitWindow(reference, signal=None, window_length=3001, return_projection=False):
     """Tries to fit an exponential decay across the window_length"""
-    if not isinstance(signal, types.NoneType):
+    if not isinstance(signal, type(None)):
         x = reference
         y = signal
     else:
@@ -363,7 +363,7 @@ def NormalizeSignal(signal=None, reference=None, **kwargs):
         btype=options['signal_btype'], axis=options['axis'])
 
     # for reference
-    if not isinstance(reference, types.NoneType):
+    if not isinstance(reference, type(None)):
         filt_ref = FilterSignal(reference, lowcut=options['reference_lowcut'], 
             highcut=options['reference_highcut'], fs=options['fs'], order=options['reference_order'], 
             btype=options['reference_btype'], axis=options['axis'])
@@ -397,7 +397,7 @@ def NormalizeSignal(signal=None, reference=None, **kwargs):
                 savgol_order=options['signal_savgol_order'])
             filt_signal = filt_signal - trend_sig
             # for reference
-            if not isinstance(reference, types.NoneType):
+            if not isinstance(reference, type(None)):
                 trend_ref = FilterSignal(filt_ref, fs=options['fs'], btype='savgol', 
                     axis=options['axis'], window_length=options['reference_window_length'], 
                     savgol_order=options['reference_savgol_order'])
@@ -454,7 +454,7 @@ def NormalizeSignal(signal=None, reference=None, **kwargs):
         ############## Calculate z-score
         filt_signal = DeltaFOverF(filt_signal, reference=filt_ref, 
             mode=options['mode'], period=options['period'], offset=options['offset'])
-        if not isinstance(reference, types.NoneType):
+        if not isinstance(reference, type(None)):
             filt_ref = DeltaFOverF(filt_ref, reference=filt_ref, 
                 mode=options['mode'], period=options['period'], offset=options['offset'])
         else:
@@ -469,7 +469,7 @@ def NormalizeSignal(signal=None, reference=None, **kwargs):
         ################ Calculate deltaf/f
         filt_signal = DeltaFOverF(filt_signal, reference=filt_ref, 
             mode=options['mode'], period=options['period'], offset=options['offset'])
-        if not isinstance(reference, types.NoneType):
+        if not isinstance(reference, type(None)):
             filt_ref = DeltaFOverF(filt_ref, reference=filt_ref, 
                 mode=options['mode'], period=options['period'], offset=options['offset'])
         else:
@@ -485,7 +485,7 @@ def NormalizeSignal(signal=None, reference=None, **kwargs):
                 savgol_order=options['signal_savgol_order'])
             filt_signal = filt_signal - trend_sig
             # for reference
-            if not isinstance(reference, types.NoneType):
+            if not isinstance(reference, type(None)):
                 trend_ref = FilterSignal(filt_ref, fs=options['fs'], btype='savgol', 
                     axis=options['axis'], window_length=options['reference_window_length'], 
                     savgol_order=options['reference_savgol_order'])
@@ -537,13 +537,13 @@ def ProcessSignalData(seg=None, sig_ch='LMag 1', ref_ch='LMag 2',
     # Retrieves signal and reference
     if sig_ch:
         try:
-            signal = filter(lambda x: x.name == sig_ch, seg.analogsignals)[0]
+            signal = [x for x in seg.analogsignals if x.name == sig_ch][0]
         except IndexError:
             raise ValueError('There is no signal channel named %s' % sig_ch)
 
     if ref_ch:
         try:
-            reference = filter(lambda x: x.name == ref_ch, seg.analogsignals)[0]
+            reference = [x for x in seg.analogsignals if x.name == ref_ch][0]
         except IndexError:
             raise ValueError('There is no reference channel named %s' % ref_ch)
     else:
@@ -615,13 +615,13 @@ def SingleStepProcessSignalData(data=None, process_type='filter', input_sig_ch='
         # Retrieves signal and reference
         if input_sig_ch:
             try:
-                signal = filter(lambda x: x.name == input_sig_ch, data.analogsignals)[-1]
+                signal = [x for x in data.analogsignals if x.name == input_sig_ch][-1]
             except IndexError:
                 raise ValueError('There is no input signal channel named %s' % input_sig_ch)
 
         if input_ref_ch:
             try:
-                reference = filter(lambda x: x.name == input_ref_ch, data.analogsignals)[-1]
+                reference = [x for x in data.analogsignals if x.name == input_ref_ch][-1]
             except IndexError:
                 raise ValueError('There is no input reference channel named %s' % input_ref_ch)
         else:
@@ -653,7 +653,7 @@ def SingleStepProcessSignalData(data=None, process_type='filter', input_sig_ch='
             highcut=options['signal_highcut'], fs=options['fs'], order=options['signal_order'], 
             btype=options['signal_btype'], axis=options['axis'])
         new_sig_ch_name = 'filtered_signal'
-        if not isinstance(reference, types.NoneType):
+        if not isinstance(reference, type(None)):
             reference = FilterSignal(reference, lowcut=options['reference_lowcut'], 
                 highcut=options['reference_highcut'], fs=options['fs'], order=options['reference_order'], 
                 btype=options['reference_btype'], axis=options['axis'])
@@ -677,7 +677,7 @@ def SingleStepProcessSignalData(data=None, process_type='filter', input_sig_ch='
                 savgol_order=options['signal_savgol_order'])
             signal = signal - trend_sig 
             # for reference
-            if not isinstance(reference, types.NoneType):
+            if not isinstance(reference, type(None)):
                 trend_ref = FilterSignal(reference, fs=options['fs'], btype='savgol', 
                     axis=options['axis'], window_length=options['reference_window_length'], 
                     savgol_order=options['reference_savgol_order'])
@@ -709,7 +709,7 @@ def SingleStepProcessSignalData(data=None, process_type='filter', input_sig_ch='
             reference = reference - trend_ref 
 
         new_sig_ch_name = 'detrended_signal'
-        if not isinstance(reference, types.NoneType):
+        if not isinstance(reference, type(None)):
             new_ref_ch_name = 'detrended_reference'
         else:
             new_ref_ch_name = None
@@ -724,7 +724,7 @@ def SingleStepProcessSignalData(data=None, process_type='filter', input_sig_ch='
         signal = DeltaFOverF(signal, reference=reference, 
             mode=options['mode'], period=options['period'], offset=options['offset'])
         new_sig_ch_name = 'measure_signal'
-        if not isinstance(reference, types.NoneType):
+        if not isinstance(reference, type(None)):
             reference = DeltaFOverF(reference, reference=reference, 
                 mode=options['mode'], period=options['period'], offset=options['offset'])
             new_ref_ch_name = 'measure_reference'
@@ -741,10 +741,10 @@ def SingleStepProcessSignalData(data=None, process_type='filter', input_sig_ch='
             data.analogsignals.append(new_ref_ch)
     else:
         signal = pd.DataFrame(signal, index=index, columns=columns)
-        if not isinstance(reference, types.NoneType):
+        if not isinstance(reference, type(None)):
             reference = pd.DataFrame(reference, index=index, columns=columns)
 
-    if not isinstance(reference, types.NoneType):
+    if not isinstance(reference, type(None)):
         return signal, reference
     else:
         return signal, None
