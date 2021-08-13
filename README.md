@@ -24,6 +24,7 @@ $ conda deactivate
 will get you out of your virtual environment
 ## Running `process_data.py`
 
+### From the command line
 If you want to run `process_data.py` from the command line, do the following:
 
 ```bash
@@ -35,15 +36,25 @@ By default, it will read parameters from `params.json`, but you can make your ow
 $ python3 process_data.py -f my_parameters.json
 ```
 
-If you want to do it within python (or ipython) and do not have any additional arguments, the easiest is to do:
+### From ipython or spyder
+```python
+[1]: !python3 process_data.py -f params.json
+```
+You can also use the python shell commands below
 
+### From the python shell
+With no separate parameter file:
 ```python
 >>> exec(open("./process_data.py").read())
 ```
 
 If you do have your own parameter file, you can us the `os` or `subprocess` modules:
-
 ```python
 >>> import os
 >>> os.system("python3 process_data.py -f my_parameters.json")
+```
+
+```python
+>>> import subprocess
+>>> subprocess.Popen(["python3", "process_data.py", "-f", "params.json"])
 ```
