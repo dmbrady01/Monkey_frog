@@ -505,6 +505,7 @@ def main(file: str) -> None:
 
 
         print(('Finished processing datapath: %s' % dpath))
+    return trials
 
 if __name__ == '__main__':
     main()
