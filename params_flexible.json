@@ -1,0 +1,42 @@
+{
+    "signal_channel": "465A 1",
+    "reference_channel": "405A 1",
+    "mode": "TTL",
+    "baseline_window_unaligned": true,
+    "before_alignment": [
+        {"type": "filter", "options": {}},
+        {"type": "detrend", "options": {"detrend": "savgol_from_reference"}},
+        {"type": "detrend", "options": {"detrend": "linear"}},
+        {"type": "measure", "options": {"mode": "z_score_period", "start_from": "dpath", "end_from": 600}}
+    ],
+    "path_to_ttl_event_params": [
+        "imaging_analysis/ttl_event_params_new_rig.json"
+    ],
+    "offsets_list": [
+        100
+    ],
+    "path_to_social_excel": [
+         "/Users/DB/Development/Monkey_frog/data/FirstFibPho-190516-122345_1292036-1/1292036-1.csv"
+    ],
+    "dpaths": [
+        "/Users/DB/Development/Monkey_frog/data/FirstFibPho-210809"
+    ],
+    "analysis_blocks": [
+        {
+            "epoch_name": "correct",
+            "event": "stimulus_appears",
+            "prewindow": 30,
+            "postwindow": 30,
+            "downsample": 10,
+            "quantification": "mean",
+            "baseline_window": [-30, 0],
+            "response_window": [0, 30],
+            "save_file_as": "correct",
+            "plot_paramaters": {
+                "heatmap_range": [null, null],
+                "smoothing_window": 200
+            },
+            "after_alignment": []
+        }     
+    ]
+}
