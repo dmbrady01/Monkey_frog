@@ -1,11 +1,8 @@
-[![Waffle.io - Columns and their card count](https://badge.waffle.io/dmbrady01/Monkey_frog.svg?columns=all)](https://waffle.io/dmbrady01/Monkey_frog) 
-
-
 # Monkey_frog
 
 Code for analyzing 2-photon imaging data with TTL event data
 
-To setup your virtual environment, have `miniconda` installed for `python2.7x`, then run
+To setup your virtual environment, have `miniconda` installed for `python3.8x`, then run
 
 ```bash
 $ conda env create -f environment.yml
