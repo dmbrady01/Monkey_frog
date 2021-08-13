@@ -16,9 +16,9 @@ class TestBoutTypeDict(unittest.TestCase):
         self.assertTrue(all([isinstance(x, dict) for x in BOUT_TYPE_DICT]))
 
     def test_keys_of_each_dict(self):
-        self.assertTrue(all(['location' in x.keys() for x in BOUT_TYPE_DICT]))
-        self.assertTrue(all(['zone' in x.keys() for x in BOUT_TYPE_DICT]))
-        self.assertTrue(all(['name' in x.keys() for x in BOUT_TYPE_DICT]))
+        self.assertTrue(all(['location' in list(x.keys()) for x in BOUT_TYPE_DICT]))
+        self.assertTrue(all(['zone' in list(x.keys()) for x in BOUT_TYPE_DICT]))
+        self.assertTrue(all(['name' in list(x.keys()) for x in BOUT_TYPE_DICT]))
 
 class TestStimulusNameSet(unittest.TestCase):
 
@@ -192,7 +192,7 @@ class TestGetBehavioralEvents(unittest.TestCase):
             ['Stimulus Location', 'right']
         ]
         mock_read_csv.return_value = pd.DataFrame(data)
-        print(pd.DataFrame(data))
+        print((pd.DataFrame(data)))
         l, a, s = GetBehavioralEvents().get_ethovision_header_info('/path/', 
             stimulus_name_set={'stimulus location'}, animal_name_set={'animal animal'})
         self.assertEqual(l, 5)

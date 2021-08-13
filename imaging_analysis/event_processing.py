@@ -55,9 +55,9 @@ def LoadEventParams(dpath=None, evtdict=None, mode='TTL'):
     epochs = evtdict['epochs']
     # Constructs code dataframe
     if mode == 'TTL':
-        code_event_pairs = [(x, y['code']) for x, y in evtdict['events'].items()]
+        code_event_pairs = [(x, y['code']) for x, y in list(evtdict['events'].items())]
         channels = evtdict['channels']
-        events, codes = zip(*code_event_pairs)
+        events, codes = list(zip(*code_event_pairs))
         event_type = pd.DataFrame(data=list(codes), index=list(events), columns=channels)
         event_type.index.name = 'event'
         event_type.name = 'eventframe'
@@ -70,7 +70,7 @@ def LoadEventParams(dpath=None, evtdict=None, mode='TTL'):
     # plot = pd.DataFrame(plot_event_pairs, columns=['event', 'plot']).set_index('event')
     # plot.name = 'plotframe'
     # Constructs results dataframe
-    results_event_pairs = [(x, y['type']) for x, y in evtdict['events'].items()]
+    results_event_pairs = [(x, y['type']) for x, y in list(evtdict['events'].items())]
     results = pd.DataFrame(results_event_pairs, columns=['event', 'type']).set_index('event')
     results.name = 'resultsframe'
     # returns dataframe
@@ -241,8 +241,8 @@ def ProcessEventList(eventlist=None, tolerance=None, evtframe=None,
     if not isinstance(eventlist, list):
         raise TypeError('%s needs to be a list')
     # Checks time_name and ch_name are keys in each eventlist dict
-    time_name_check = all(time_name in d.keys() for d in eventlist)
-    ch_name_check = all(ch_name in d.keys() for d in eventlist)
+    time_name_check = all(time_name in list(d.keys()) for d in eventlist)
+    ch_name_check = all(ch_name in list(d.keys()) for d in eventlist)
     if not (time_name_check and ch_name_check):
         raise ValueError('%s and %s must be keys in dictionaries in eventlist' 
             % (time_name, ch_name))
@@ -258,9 +258,9 @@ def ProcessEventList(eventlist=None, tolerance=None, evtframe=None,
     # event list
     while any(event_array[time_name].size for event_array in eventlist):
         # Pulls out channels that still have events in them
-        evtlist_non_empty = filter(lambda x: x[time_name].size, eventlist)
+        evtlist_non_empty = [x for x in eventlist if x[time_name].size]
         # Gets the first event for each channel in evtlist_non_empty
-        first_elems = map(lambda x: x[time_name][0], evtlist_non_empty)
+        first_elems = [x[time_name][0] for x in evtlist_non_empty]
         # Selects the earliest out of all the channels
         current_earliest = np.amin(first_elems) * pq.s 
         # Sets a list where each element represents whether a channel
@@ -294,7 +294,7 @@ def ProcessEventList(eventlist=None, tolerance=None, evtframe=None,
     return event_times, event_labels
 
 def InterleaveEvents(list1, list2):
-    return np.array(list(itertools.chain(*zip(list1, list2))))
+    return np.array(list(itertools.chain(*list(zip(list1, list2)))))
 
 def SpoofEvents(dataframe, event_col='Bout type', start_col='Bout start', end_col='Bout end'):
     """Given a dataframe of events to spoof, adds event labels with times"""
@@ -378,7 +378,7 @@ def ProcessTrials(seg=None, name='Events', startoftrial=None, epochs=None,
         raise TypeError('%s must be a segment object' % seg)
     # Gets processed event object
     try:
-        event_obj = filter(lambda x: x.name == name, seg.events)[0]
+        event_obj = [x for x in seg.events if x.name == name][0]
     except IndexError:
         raise IndexError("""%s does not have an events object named %s. Make sure 
             to run ProcessEvents first!""" % (seg, name))
@@ -389,7 +389,7 @@ def ProcessTrials(seg=None, name='Events', startoftrial=None, epochs=None,
     epoch_events = typedf.loc[typedf.type.isin(epochs)].index
     # Transforms seg.events object into a dataframe with times and labels
     # as columns
-    labels = pd.Series(event_obj.labels, name='event')
+    labels = pd.Series(event_obj.labels.astype(str), name='event')
     times = pd.Series(event_obj.times, name='time')
     trial_df = pd.concat([times, labels], axis=1)
     # Adds trial index column to dataframe

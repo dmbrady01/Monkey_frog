@@ -112,7 +112,7 @@ alignment_blocks = [
 ]
 
 ####################### PREPROCESSING DATA ###############################
-print('\n\n\n\nRUNNING IN MODE: %s \n\n\n' % mode)
+print(('\n\n\n\nRUNNING IN MODE: %s \n\n\n' % mode))
 for dpath_ind, dpath in enumerate(dpaths):
     # Reads data from Tdt folder
     PrintNoNewLine('\nCannot find processed pkl object, reading TDT folder instead...')
@@ -130,7 +130,7 @@ for dpath_ind, dpath in enumerate(dpaths):
     for segment in seglist:
         # Extracts the sampling rate from the signal channel
         try:
-            sampling_rate = filter(lambda x: x.name == signal_channel, segment.analogsignals)[0].sampling_rate
+            sampling_rate = [x for x in segment.analogsignals if x.name == signal_channel][0].sampling_rate
         except IndexError:
             raise ValueError('Could not find your channels. Make sure you have the right names!')
         # Appends an analog signal object that is delta F/F. The name of the channel is
@@ -151,7 +151,7 @@ for dpath_ind, dpath in enumerate(dpaths):
                     input_sig_ch = signal_channel
                     input_ref_ch = reference_channel
 
-                if 'start_from' in process['options'].keys():
+                if 'start_from' in list(process['options'].keys()):
                     start_from = process['options']['start_from']
                     if start_from == 'list':
                         start = offsets_list[dpath_ind]
@@ -300,7 +300,7 @@ for dpath_ind, dpath in enumerate(dpaths):
             filter_reference_name = 'filtered_reference'
             lookup[filter_signal_name] = epoch_name + '_' + filter_signal_name
             lookup[filter_reference_name] = epoch_name + '_' + filter_reference_name
-            if lookup[filter_signal_name] in segment.analyzed.keys():
+            if lookup[filter_signal_name] in list(segment.analyzed.keys()):
                 segment.analyzed[lookup[filter_signal_name]]['all_traces'] = signal.copy()
                 segment.analyzed[lookup[filter_reference_name]]['all_traces'] = reference.copy()
             else:
@@ -407,7 +407,7 @@ for dpath_ind, dpath in enumerate(dpaths):
             detrend_reference_name = 'detrended_reference'
             lookup[detrend_signal_name] = epoch_name + '_' + detrend_signal_name
             lookup[detrend_reference_name] = epoch_name + '_' + detrend_reference_name
-            if lookup[detrend_signal_name] in segment.analyzed.keys():
+            if lookup[detrend_signal_name] in list(segment.analyzed.keys()):
                 segment.analyzed[lookup[detrend_signal_name]]['all_traces'] = detrended_signal.copy()
                 segment.analyzed[lookup[detrend_reference_name]]['all_traces'] = detrended_reference.copy()
             else:
@@ -507,7 +507,7 @@ for dpath_ind, dpath in enumerate(dpaths):
             measure_reference_name = 'measure_reference'
             lookup[measure_signal_name] = epoch_name + '_' + measure_signal_name
             lookup[measure_reference_name] = epoch_name + '_' + measure_reference_name
-            if lookup[measure_signal_name] in segment.analyzed.keys():
+            if lookup[measure_signal_name] in list(segment.analyzed.keys()):
                 segment.analyzed[lookup[measure_signal_name]]['all_traces'] = measure_signal.copy()
                 segment.analyzed[lookup[measure_reference_name]]['all_traces'] = measure_reference.copy()
             else:
@@ -717,4 +717,4 @@ for dpath_ind, dpath in enumerate(dpaths):
             smoothed_zscore.to_csv(save_path + '_smoothed_zscores.csv')
 
 
-    print('Finished processing datapath: %s' % dpath)
+    print(('Finished processing datapath: %s' % dpath))

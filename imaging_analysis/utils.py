@@ -17,6 +17,13 @@ import os
 import six
 import sys
 
+def CleanUpNames(segment, attribute_list=None):
+    attributes = attribute_list or ['analogsignals', 'events']
+    for attribute in attributes:
+        for channel in getattr(segment, attribute):
+            channel.name = channel.name.replace("'","").replace("b","")
+    return segment
+
 def ReadNeoPickledObj(path='', name="processed.pkl", return_block=False):
     """Reads a pickled neo object. If return_block is True a block is returned.
     Otherwise the segments are returned."""
@@ -41,7 +48,6 @@ def ReadNeoPickledObj(path='', name="processed.pkl", return_block=False):
     else:
         return block.segments
 
-
 def ReadNeoTdt(path, return_block=True):
     """Reads a TdT folder for processing. If return_block is True, a block is
     returned. Otherwise, segments are returned"""
@@ -57,6 +63,8 @@ def ReadNeoTdt(path, return_block=True):
     # Throw error if there are no segments
     if len(block.segments) == 0:
         raise OSError('The data did not load. Please check the path again. Alternatively, make sure you have all the file types necessary.')
+    for segment in block.segments:
+        segment = CleanUpNames(segment)
     # Returns segments or blocks
     if return_block:
         return block

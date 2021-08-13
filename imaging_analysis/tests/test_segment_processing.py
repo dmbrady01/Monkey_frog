@@ -138,7 +138,7 @@ class TestTruncateSegments(unittest.TestCase):
         "Test to make sure analog starts/ends are truncated for every segment"
         trunc_segs = TruncateSegments(self.segments, start=self.signal_start, 
             end=self.signal_end)
-        choice_to_test = np.random.choice(range(len(trunc_segs)))
+        choice_to_test = np.random.choice(list(range(len(trunc_segs))))
         analog = trunc_segs[choice_to_test].analogsignals[0]
         true_start = self.signal_start * pq.s
         true_stop = self.signal.t_stop - self.signal_end * pq.s
@@ -150,7 +150,7 @@ class TestTruncateSegments(unittest.TestCase):
         "Test to make sure analog starts/ends are truncated for every segment"
         trunc_segs = TruncateSegments(self.segments, start=self.signal_start, 
             end=self.signal_end, clip_same=True)
-        choice_to_test = np.random.choice(range(len(trunc_segs)))
+        choice_to_test = np.random.choice(list(range(len(trunc_segs))))
         event_times = trunc_segs[choice_to_test].events[0].times
         test_start = self.signal_start - 1 not in event_times
         true_stop = self.signal.t_stop - self.signal_end * pq.s
@@ -162,7 +162,7 @@ class TestTruncateSegments(unittest.TestCase):
         trunc_segs = TruncateSegments(self.segments, start=self.signal_start, 
             end=self.signal_end, clip_same=False, evt_start=self.evt_start, 
             evt_end=self.evt_end)
-        choice_to_test = np.random.choice(range(len(trunc_segs)))
+        choice_to_test = np.random.choice(list(range(len(trunc_segs))))
         event_times = trunc_segs[choice_to_test].events[0].times
         test_start = self.evt_pre_start not in event_times
         test_stop = self.evt_post_end not in event_times
@@ -214,12 +214,12 @@ class TestAppendDataframesToSegment(unittest.TestCase):
     def test_segment_does_not_erase_if_dataframes_already_exists(self):
         "Makes sure it adds to dataframes if dataframes already exists"
         AppendDataframesToSegment(self.segment2, self.df, 'test2')
-        self.assertEqual(len(self.segment2.dataframes.keys()), 2)
+        self.assertEqual(len(list(self.segment2.dataframes.keys())), 2)
 
     def test_segment_works_with_list_of_dataframes(self):
         "Makes sure it works with a list of dataframes"
         AppendDataframesToSegment(self.segment, [self.df, self.df2], ['test', 'test2'])
-        self.assertEqual(len(self.segment.dataframes.keys()), 2)
+        self.assertEqual(len(list(self.segment.dataframes.keys())), 2)
 
 
 

@@ -13,7 +13,7 @@ __lastmodified__ = "09Aug2018"
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
-from markov.markov import ReadTransitionsOrCountMatrixFromFile, MaxStates, MarkovToTransitionMatrix, StationaryDistribution, DistanceBewtweenMatrices, ReadStateCsv
+from .markov.markov import ReadTransitionsOrCountMatrixFromFile, MaxStates, MarkovToTransitionMatrix, StationaryDistribution, DistanceBewtweenMatrices, ReadStateCsv
 import json
 import os
 

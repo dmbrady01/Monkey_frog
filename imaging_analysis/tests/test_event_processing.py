@@ -277,7 +277,7 @@ class TestExtractEventsToList(unittest.TestCase):
         "Checks that dictionary key is set to time_name"
         output = ExtractEventsToList(seg=self.segment, evtframe=self.df, 
             time_name='myname')
-        dict_keys = [x.keys() for x in output]
+        dict_keys = [list(x.keys()) for x in output]
         dict_check = ['myname' in x for x in dict_keys]
         self.assertTrue(all(dict_check))
 
@@ -285,7 +285,7 @@ class TestExtractEventsToList(unittest.TestCase):
         "Checks that dictionary key is set to ch_name"
         output = ExtractEventsToList(seg=self.segment, evtframe=self.df, 
             ch_name='myname')
-        dict_keys = [x.keys() for x in output]
+        dict_keys = [list(x.keys()) for x in output]
         dict_check = ['myname' in x for x in dict_keys]
         self.assertTrue(all(dict_check))
 
@@ -301,7 +301,7 @@ class TestExtractEventsToList(unittest.TestCase):
         output = ExtractEventsToList(seg=self.segment, evtframe=self.df)
         output_values = [x['times'] for x in output]
         check = [self.evt.times, self.evt2.times]
-        zipped = zip(check, output_values)
+        zipped = list(zip(check, output_values))
         check_zip = [np.array_equal(x, y) for x, y in zipped]
         self.assertTrue(all(check_zip))
 
@@ -694,7 +694,7 @@ class TestGroupTrialsByEpoch(unittest.TestCase):
         GroupTrialsByEpoch(seg=self.segment, trials=self.trials, 
             startoftrial=self.startoftrial, endoftrial=self.endoftrial)
         to_print = ' '.join(x.name for x in self.segment.epochs)
-        print(self.trials)
+        print((self.trials))
         self.assertEqual(len(self.segment.epochs), 
             self.trials.results.unique().shape[0] + \
             self.trials.with_previous_results.unique().shape[0] - 1)

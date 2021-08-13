@@ -49,13 +49,13 @@ path_to_ttl_event_params = [
 ]
 #### WHERE IS THE DATA
 dpaths = [
-    '/Users/DB/Development/Monkey_frog/data/FirstFibPho-210808'
+        '/Users/DB/Development/Monkey_frog/data/FirstFibPho-210809'
 ]
 
 analysis_blocks = [
     {
-        'epoch_name': ['correct', 'incorrect'],
-        'event': 'iti_start',
+        'epoch_name': ['correct'],
+        'event': 'stimulus_appears',
         'prewindow': 3,
         'postwindow': 10,
         'z_score_window': [],
@@ -132,7 +132,7 @@ analysis_blocks = [
 # ]
 
 ####################### PREPROCESSING DATA ###############################
-print('\n\n\n\nRUNNING IN MODE: %s \n\n\n' % mode)
+print(('\n\n\n\nRUNNING IN MODE: %s \n\n\n' % mode))
 for dpath_ind, dpath in enumerate(dpaths):
     # Reads data from Tdt folder
     PrintNoNewLine('\nCannot find processed pkl object, reading TDT folder instead...')
@@ -150,7 +150,7 @@ for dpath_ind, dpath in enumerate(dpaths):
     for segment in seglist:
         # Extracts the sampling rate from the signal channel
         try:
-            sampling_rate = filter(lambda x: x.name == signal_channel, segment.analogsignals)[0].sampling_rate
+            sampling_rate = [x for x in segment.analogsignals if x.name == signal_channel][0].sampling_rate
         except IndexError:
             raise ValueError('Could not find your channels. Make sure you have the right names!')
         # Appends an analog signal object that is delta F/F. The name of the channel is
@@ -242,7 +242,7 @@ for dpath_ind, dpath in enumerate(dpaths):
 
             lookup = {}
             for channel in ['Filtered_signal', 'Filtered_reference', 'Detrended', 'DeltaF_F_or_Z_score']:
-                print('\nAnalyzing "{}" trials centered around "{}". Channel: "{}" \n'.format(epoch_name, event, channel))
+                print(('\nAnalyzing "{}" trials centered around "{}". Channel: "{}" \n'.format(epoch_name, event, channel)))
 
                 dict_name = "{}_{}".format(epoch_name, channel)
                 lookup[channel] = dict_name 
@@ -352,7 +352,7 @@ for dpath_ind, dpath in enumerate(dpaths):
             else:
                 # Detrending
                 PrintNoNewLine('Detrending signal...')
-                fits = np.array([np.polyfit(reference.values[:, i],signal.values[:, i],1) for i in xrange(signal.shape[1])])
+                fits = np.array([np.polyfit(reference.values[:, i],signal.values[:, i],1) for i in range(signal.shape[1])])
                 Y_fit_all = np.array([np.polyval(fits[i], reference.values[:,i]) for i in np.arange(reference.values.shape[1])]).T
                 Y_df_all = signal.values - Y_fit_all
                 detrended_signal = pd.DataFrame(Y_df_all, index=signal.index)
@@ -586,4 +586,4 @@ for dpath_ind, dpath in enumerate(dpaths):
             smoothed_zscore.to_csv(save_path + '_smoothed_zscores.csv')
 
 
-    print('Finished processing datapath: %s' % dpath)
+    print(('Finished processing datapath: %s' % dpath))
