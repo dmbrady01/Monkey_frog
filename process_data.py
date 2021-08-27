@@ -438,11 +438,11 @@ def main(file: str) -> None:
                 elif quantification == 'mean':
                     base = np.mean(zscores[baseline_window[0]:baseline_window[1]], axis=0)
                     resp = np.mean(zscores[response_window[0]:response_window[1]], axis=0)
-                    ylabel = 'Z-Score'
+                    ylabel = 'Z-Score or DeltaF/F'
                 elif quantification == 'median':
                     base = np.median(zscores[baseline_window[0]:baseline_window[1]], axis=0)
                     resp = np.median(zscores[response_window[0]:response_window[1]], axis=0)
-                    ylabel = 'Z-Score'
+                    ylabel = 'Z-Score or DeltaF/F'
 
                 if isinstance(base, pd.core.series.Series):
                     base = base.values
@@ -489,7 +489,7 @@ def main(file: str) -> None:
                 curr_ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
                 curr_ax.text((x1+x2)*.5, y+h, sig, ha='center', va='bottom', color=col)
                 curr_ax.set_ylabel(ylabel)
-                curr_ax.set_title('Baseline vs. Response Changes in Z-Score Signal \n {} of {}s'.format(test, quantification))
+                curr_ax.set_title('Baseline vs. Response Changes in Z-Score or DeltaF/F Signal \n {} of {}s'.format(test, quantification))
 
                 print('Done!')
             ################# Save Stuff ##################################
@@ -506,7 +506,7 @@ def main(file: str) -> None:
                 zscores.columns.name = 'trial'
                 # Fix rows 
                 zscores.index.name = 'time'
-                zscores.to_csv(save_path + '_zscores_aligned.csv')
+                zscores.to_csv(save_path + '_zscores_or_deltaf_aligned.csv')
                 # Trial point estimates
                 point_estimates = pd.DataFrame({'baseline': base, 'response': resp}, 
                     index=np.arange(1, base.shape[0]+1))
@@ -525,7 +525,7 @@ def main(file: str) -> None:
                 # Save smoothed data
                 smoothed_zscore = pd.concat([zscores_mean, zscores_sem], axis=1)
                 smoothed_zscore.columns = ['mean', 'sem']
-                smoothed_zscore.to_csv(save_path + '_smoothed_zscores.csv')
+                smoothed_zscore.to_csv(save_path + '_smoothed_zscores_or_deltaf.csv')
 
 
         print(('Finished processing datapath: %s' % dpath))
