@@ -565,7 +565,9 @@ def ProcessSignalData(seg=None, sig_ch='LMag 1', ref_ch='LMag 2',
     ############ Add detrended signal #######################
     # Creates new AnalogSignal object
     detrended = AnalogSignal(all_signals['detrended_signal'], units=units, t_start=t_start, sampling_rate=fs, name='Detrended')
+    detrended_ref = AnalogSignal(all_signals['detrended_reference'], units=units, t_start=t_start, sampling_rate=fs, name='Detrended_reference')
     seg.analogsignals.append(detrended)
+    seg.analogsignals.append(detrended_ref)
     
     ######### Add filtered signal ########################
     # Creates new AnalogSignal object
