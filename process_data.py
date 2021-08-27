@@ -338,7 +338,7 @@ def main(file: str) -> None:
                 else:
                     curr_ax.legend(['z-score window'])
                 curr_ax.axvline(0, color='black', linestyle='--')
-                curr_ax.set_ylabel('Voltage (V)')
+                curr_ax.set_ylabel('Voltage (V) or DeltaF/F %')
                 curr_ax.set_xlabel('Time (s)')
                 curr_ax.set_title('Average Detrended Signal $\pm$ SEM')
 
@@ -423,7 +423,7 @@ def main(file: str) -> None:
                 curr_ax.legend(['baseline window', 'response window'])
                 if z_score_before_alignment:
                     curr_ax.set_title('465 nm Average Z-Score or DeltaF/F Signal $\pm$ SEM')
-                    curr_ax.set_ylabel('Z-Score or DeltaF/F')
+                    curr_ax.set_ylabel('Z-Score or DeltaF/F %')
                 else:
                     curr_ax.set_title('465 nm Average Z-Score Signal $\pm$ SEM')
                     curr_ax.set_ylabel('Z-Score')
