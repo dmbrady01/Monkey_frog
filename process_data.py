@@ -41,6 +41,8 @@ def process_data(file: str='./params.json') -> None:
     analysis_blocks = params.get("analysis_blocks")
     path_to_ttl_event_params = params.get("path_to_ttl_event_params")
     path_to_social_excel = params.get("path_to_social_excel")
+    trunc_start = params.get("trunc_start", 0)
+    trunc_end = params.get("trunc_end", 10)
     ####################### PREPROCESSING DATA ###############################
     print(f'\n\n\n\nRUNNING IN MODE: {mode} \n\n\n')
     for dpath_ind, dpath in enumerate(dpaths):
@@ -52,7 +54,7 @@ def process_data(file: str='./params.json') -> None:
 
         # Trunactes first/last seconds of recording
         PrintNoNewLine('Truncating signals and events...')
-        seglist = TruncateSegments(seglist, start=0, end=10, clip_same=True)
+        seglist = TruncateSegments(seglist, start=trunc_start, end=trunc_end, clip_same=True)
         print('Done!')
 
 
@@ -521,7 +523,7 @@ def process_data(file: str='./params.json') -> None:
 
 
         print(('Finished processing datapath: %s' % dpath))
-    return trials, seglist
+    return trials, seglist, all_signals
 
 @click.command()
 @click.option(
