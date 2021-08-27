@@ -26,15 +26,7 @@ from scipy import stats
 import json
 import click
 
-@click.command()
-@click.option(
-    '-f',
-    '--file',
-    default="params.json",
-    type=str,
-    show_default=True,
-    help=("Parameter file with channel info, events of interest, etc."))
-def main(file: str) -> None:
+def process_data(file: str='./params.json') -> None:
     """Runs imaging analysis based on inputs from a parameter file"""
     sns.set_style('darkgrid')
     ############## PART 1 Preprocess data ##########################
@@ -529,7 +521,19 @@ def main(file: str) -> None:
 
 
         print(('Finished processing datapath: %s' % dpath))
-    return trials
+    return trials, seglist
+
+@click.command()
+@click.option(
+    '-f',
+    '--file',
+    default="params.json",
+    type=str,
+    show_default=True,
+    help=("Parameter file with channel info, events of interest, etc."))
+def main(file: str) -> None:
+    """Runs imaging analysis based on inputs from a parameter file"""
+    process_data(file)
 
 if __name__ == '__main__':
     main()

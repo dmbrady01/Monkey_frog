@@ -48,6 +48,12 @@ With no separate parameter file:
 >>> exec(open("./process_data.py").read())
 ```
 
+If you want to examine the output
+```python
+>>> from process_data import process_data
+>>> trials, segment_list = process_data('my_parameters.json')
+```
+
 If you do have your own parameter file, you can us the `os` or `subprocess` modules:
 ```python
 >>> import os
