@@ -159,7 +159,7 @@ def main(file: str) -> None:
                 smoothing_window = block['plot_paramaters']['smoothing_window']
 
                 lookup = {}
-                for channel in ['Filtered_signal', 'Filtered_reference', 'Detrended', 'DeltaF_F_or_Z_score']:
+                for channel in ['Filtered_signal', 'Filtered_reference', 'Detrended', 'Detrended_reference', 'DeltaF_F_or_Z_score']:
                     print(('\nAnalyzing "{}" trials centered around "{}". Channel: "{}" \n'.format(epoch_name, event, channel)))
 
                     dict_name = "{}_{}".format(epoch_name, channel)
@@ -267,6 +267,20 @@ def main(file: str) -> None:
             ############################# Calculate detrended signal #################################
                 if z_score_before_alignment:
                     detrended_signal = segment.analyzed[lookup['Detrended']]['all_traces']
+
+                    # Adding detrended reference
+                    detrended_ref = segment.analyzed[lookup['Detrended_reference']]['all_traces']
+                    detrended_ref_mean = detrended_ref.mean(axis=1)
+
+                    detrended_ref_sem = detrended_ref.sem(axis=1)
+
+                    if smoothing_window is not None:
+                        detrended_ref_mean = SmoothSignalWithPeriod(x=detrended_ref_mean, 
+                            sampling_rate=float(sampling_rate)/downsample, 
+                            ms_bin=smoothing_window, window='flat')
+                        detrended_ref_sem = SmoothSignalWithPeriod(x=detrended_ref_sem, 
+                            sampling_rate=float(sampling_rate)/downsample, 
+                            ms_bin=smoothing_window, window='flat')
                 else:
                     # Detrending
                     PrintNoNewLine('Detrending signal...')
@@ -307,20 +321,26 @@ def main(file: str) -> None:
 
                     curr_ax.plot([zscore_start, zscore_end], [zscore_height, zscore_height], color='.1', linewidth=3)
 
-
+                # Plot detrended signal
                 curr_ax.plot(detrended_signal_mean.index, detrended_signal_mean.values, color='b', linewidth=2)
-                curr_ax.fill_between(detrended_signal_mean.index, (detrended_signal_mean - detrended_signal_sem).values, 
-                    (detrended_signal_mean + detrended_signal_sem).values, color='b', alpha=0.05)
+                curr_ax.fill_between(detrended_signal_mean.index, (detrended_signal_mean - detrended_ref_sem).values, 
+                    (detrended_signal_mean + detrended_ref_sem).values, color='b', alpha=0.05)
+
+                # Plot detrended reference if necessary
+                if z_score_before_alignment:
+                    curr_ax.plot(detrended_ref_mean.index, detrended_ref_mean.values, color='g', linewidth=2)
+                    curr_ax.fill_between(detrended_ref_mean.index, (detrended_ref_mean - detrended_ref_sem).values, 
+                        (detrended_ref_mean + detrended_ref_sem).values, color='g', alpha=0.05)
 
                 # Plot event onset
                 if z_score_before_alignment:
-                    pass
+                    curr_ax.legend(['465 nm', '405 nm'])
                 else:
                     curr_ax.legend(['z-score window'])
                 curr_ax.axvline(0, color='black', linestyle='--')
                 curr_ax.set_ylabel('Voltage (V)')
                 curr_ax.set_xlabel('Time (s)')
-                curr_ax.set_title('465 nm Average Detrended Signal $\pm$ SEM')
+                curr_ax.set_title('Average Detrended Signal $\pm$ SEM')
 
                 print('Done!')
             
@@ -359,7 +379,7 @@ def main(file: str) -> None:
                 curr_ax.set_xlabel('Time (s)');
                 if z_score_before_alignment:
                     sampling_per = segment.analogsignals[0].sampling_period
-                    curr_ax.set_title('Z-Score Heat Map \n Baseline Window: {} to {} Seconds'.format(round(deltaf_options['period'][0]*sampling_per), round(deltaf_options['period'][1]*sampling_per)));
+                    curr_ax.set_title('Z-Score or DeltaF/F Heat Map \n Baseline Window: {} to {} Seconds'.format(round(deltaf_options['period'][0]*sampling_per), round(deltaf_options['period'][1]*sampling_per)));
                 else:
                     curr_ax.set_title('Z-Score Heat Map \n Baseline Window: {} to {} Seconds'.format(z_score_window[0], z_score_window[1]));
                 print('Done!')
@@ -399,10 +419,14 @@ def main(file: str) -> None:
                 # Plot event onset
                 curr_ax.axvline(0, color='black', linestyle='--')
 
-                curr_ax.set_ylabel('Z-Score')
                 curr_ax.set_xlabel('Time (s)')
                 curr_ax.legend(['baseline window', 'response window'])
-                curr_ax.set_title('465 nm Average Z-Score Signal $\pm$ SEM')
+                if z_score_before_alignment:
+                    curr_ax.set_title('465 nm Average Z-Score or DeltaF/F Signal $\pm$ SEM')
+                    curr_ax.set_ylabel('Z-Score or DeltaF/F')
+                else:
+                    curr_ax.set_title('465 nm Average Z-Score Signal $\pm$ SEM')
+                    curr_ax.set_ylabel('Z-Score')
                 print('Done!')
             ##################### Quantification #################################
                 PrintNoNewLine('Performing statistical testing on baseline vs response periods...')
