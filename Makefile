@@ -20,11 +20,11 @@ up-no-d: ## Compose up but no detach
 down: ## Compose down
 	docker-compose down -v --remove-orphans
 
-bash: ## Compose run but enter container instead of running
+bash: ## Compose run but run bash
 	docker-compose -f docker-compose.yaml run --entrypoint /bin/bash app
 
-ipython: ## Compose run but enter ipython
+ipython: ## Compose run but run ipython
 	docker-compose -f docker-compose.yaml run --entrypoint ipython app
 
-run: ## Run process_data.py
+run: ## Run process_data.py. Set file=myfile.json to set the parameter file
 	docker-compose -f docker-compose.yaml run app -f $(file)
