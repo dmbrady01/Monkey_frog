@@ -1,0 +1,8 @@
+**.pyc
+**.DS_STORE
+**.egg-info/
+data/
+reference_docs/
+.ipynb_checkpoints
+.coverage
+htmlcov/

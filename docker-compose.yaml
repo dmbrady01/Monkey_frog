@@ -1,0 +1,9 @@
+version: '3.7'
+services:
+  app:
+    build: .
+    image: monkey_frog
+    container_name: monkey_frog
+    tty: true
+    volumes:
+      - .:/app
