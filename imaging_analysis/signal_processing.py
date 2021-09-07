@@ -151,6 +151,12 @@ def DeltaFOverF(signal, reference=None, period=None, mode='median', offset=0):
         moving_std = series_signal.rolling(period).std()
         z_score = (series_signal - moving_mean).divide(moving_std)
         return z_score.values.reshape(shape)
+    elif mode == 'rolling_median':
+        shape = signal.shape
+        series_signal = pd.Series(signal.flatten().copy())
+        moving_median = series_signal.rolling(period).median()
+        rolling_deltaf = (series_signal - moving_median).divide(moving_median).multiply(100.0)
+        return rolling_deltaf.values.reshape(shape)
     elif mode == 'z_score':
         return signal
     elif mode == 'no_deltaf_or_zscore':
