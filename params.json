@@ -1,10 +1,9 @@
 {
     "deltaf_options": {
         "detrend": "savgol_from_reference",
-        "signal_window_length": null,
-        "mode": "median",
-        "subtract": "True",
-        "period": [40, 306290]
+        "mode": "rolling_median",
+        "subtract": false,
+        "period": 40000
     },
     "z_score_before_alignment": true,
     "signal_channel": "465A 1",
