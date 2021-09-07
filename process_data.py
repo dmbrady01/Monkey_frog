@@ -372,8 +372,7 @@ def process_data(file: str='./params.json') -> None:
                 curr_ax.set_ylabel('Trial');
                 curr_ax.set_xlabel('Time (s)');
                 if z_score_before_alignment:
-                    sampling_per = segment.analogsignals[0].sampling_period
-                    curr_ax.set_title('Z-Score or DeltaF/F Heat Map \n Baseline Window: {} to {} Seconds'.format(round(deltaf_options['period'][0]*sampling_per), round(deltaf_options['period'][1]*sampling_per)));
+                    curr_ax.set_title('Z-Score or DeltaF/F Heat Map');
                 else:
                     curr_ax.set_title('Z-Score Heat Map \n Baseline Window: {} to {} Seconds'.format(z_score_window[0], z_score_window[1]));
                 print('Done!')
