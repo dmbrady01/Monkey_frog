@@ -317,8 +317,8 @@ def process_data(file: str='./params.json') -> None:
 
                 # Plot detrended signal
                 curr_ax.plot(detrended_signal_mean.index, detrended_signal_mean.values, color='b', linewidth=2)
-                curr_ax.fill_between(detrended_signal_mean.index, (detrended_signal_mean - detrended_ref_sem).values, 
-                    (detrended_signal_mean + detrended_ref_sem).values, color='b', alpha=0.05)
+                curr_ax.fill_between(detrended_signal_mean.index, (detrended_signal_mean - detrended_signal_sem).values, 
+                    (detrended_signal_mean + detrended_signal_sem).values, color='b', alpha=0.05)
 
                 # Plot detrended reference if necessary
                 if z_score_before_alignment:

@@ -3,7 +3,7 @@
         "detrend": "savgol_from_reference",
         "mode": "rolling_median",
         "subtract": false,
-        "period": 40000
+        "period": 101800
     },
     "z_score_before_alignment": true,
     "signal_channel": "465A 1",
