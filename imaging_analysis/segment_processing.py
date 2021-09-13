@@ -226,7 +226,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
 
     # Make trials column names
     # Starts at 1 and increments
-    trial_names = ['trial' + str(ind + 1) for ind in range(event_time.shape[0])]
+    trial_names = ['trial' + str(ind + 1) for ind in range(trial_indices.shape[0])]
     # Starts at the actual trial number
     #trial_names = ['trial' + str(ind) for ind in trial_indices]
 
@@ -266,7 +266,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
     # list of bad trials
     bad_trials = []
     # Goes through each trial to get relevant time stamps and resets them
-    for trial in range(event_time.shape[0]):
+    for trial in range(trial_indices.shape[0]):
         # Get the timestamp of the aligning event in that trial
         centering_event = event_time[trial]
         # Get the start/end of the window
