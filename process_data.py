@@ -514,7 +514,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 smoothed_zscore = pd.concat([zscores_mean, zscores_sem], axis=1)
                 smoothed_zscore.columns = ['mean', 'sem']
                 smoothed_zscore.to_csv(save_path + '_smoothed_zscores_or_deltaf.csv')
-
+                Downsample(smoothed_zscore, downsample, index_col='time').to_csv(save_path + '_smoothed_zscores_or_deltaf_downsampled.csv')
 
         print(('Finished processing datapath: %s' % dpath))
     return trials, seglist, all_signals
