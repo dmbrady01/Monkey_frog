@@ -14,19 +14,18 @@ __lastmodified__ = "06 Feb 2019"
 import sys
 from imaging_analysis.event_processing import LoadEventParams, ProcessEvents, ProcessTrials, GroupTrialsByEpoch, GenerateManualEventParamsJson
 from imaging_analysis.segment_processing import TruncateSegments, AppendDataframesToSegment, AlignEventsAndSignals
-from imaging_analysis.utils import ReadNeoPickledObj, ReadNeoTdt, WriteNeoPickledObj, PrintNoNewLine
-from imaging_analysis.signal_processing import ProcessSignalData, DeltaFOverF, PolyfitWindow, SmoothSignalWithPeriod, ZScoreCalculator, SmoothSignalWithPeriod
+from imaging_analysis.utils import ReadNeoTdt, PrintNoNewLine
+from imaging_analysis.signal_processing import ProcessSignalData, SmoothSignalWithPeriod, ZScoreCalculator, SmoothSignalWithPeriod, Downsample
 import numpy as np
-from neo.core import Epoch, Event
-import quantities as pq
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import stats
 import json
 import click
+from typing import List, Dict, Tuple, Any
 
-def process_data(file: str='./params.json') -> None:
+def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Dict[str, pd.DataFrame]]:
     """Runs imaging analysis based on inputs from a parameter file"""
     sns.set_style('darkgrid')
     ############## PART 1 Preprocess data ##########################
@@ -175,13 +174,8 @@ def process_data(file: str='./params.json') -> None:
 
                 # Down sample data
                 if downsample > 0:
-                    signal.reset_index(inplace=True)
-                    reference.reset_index(inplace=True)
-                    sample = (signal.index.to_series() / downsample).astype(int)
-                    signal = signal.groupby(sample).mean()
-                    reference = reference.groupby(sample).mean()
-                    signal = signal.set_index('index')
-                    reference = reference.set_index('index') 
+                    signal = Downsample(signal, downsample, index_col='index')
+                    reference = Downsample(reference, downsample, index_col='index')
 
                 # # Scale signal if it is too weak (want std to be at least 1)
                 # if (np.abs(signal.mean().std()) < 1.) or (np.abs(reference.mean().std()) < 1.):
@@ -500,6 +494,7 @@ def process_data(file: str='./params.json') -> None:
                 # Fix rows 
                 zscores.index.name = 'time'
                 zscores.to_csv(save_path + '_zscores_or_deltaf_aligned.csv')
+                Downsample(zscores, downsample, index_col='time').to_csv(save_path + '_zscores_or_deltaf_aligned_downsampled.csv')
                 # Trial point estimates
                 point_estimates = pd.DataFrame({'baseline': base, 'response': resp}, 
                     index=np.arange(1, base.shape[0]+1))
