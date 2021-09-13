@@ -14,7 +14,7 @@
         "iti_start": {
             "code": [0, 1, 1],
             "plot": "-k",
-            "type": "iti_start"
+            "type": "start"
         },
         "omission": {
             "code": [1, 0, 0],
@@ -34,7 +34,7 @@
         "tray_activated": {
             "code": [1, 1, 1],
             "plot": "-.k",
-            "type": "start"
+            "type": "tray_activated"
         }
     },
     "endoftrial": ["end"],
