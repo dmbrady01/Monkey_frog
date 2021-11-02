@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 from scipy import stats
 import json
 import click
+import os
 
 @click.command()
 @click.option(
@@ -69,6 +70,7 @@ def main(file: str) -> None:
 
         # Iterates through each segment in seglist. Right now, there is only one segment
         for segment in seglist:
+            segment_name = segment.name
             # Extracts the sampling rate from the signal channel
             try:
                 sampling_rate = [x for x in segment.analogsignals if x.name == signal_channel][0].sampling_rate
@@ -620,7 +622,7 @@ def main(file: str) -> None:
                 print('Done!')
             ################# Save Stuff ##################################
                 PrintNoNewLine('Saving everything...')
-                save_path = dpath + save_file_as
+                save_path = os.path.join(dpath, segment_name, save_file_as)
                 figure.savefig(save_path + '.png', format='png')
                 # figure.savefig(save_path + '.pdf', format='pdf')
                 plt.close()
