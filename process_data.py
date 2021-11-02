@@ -34,6 +34,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
     params = json.load(open(file, 'r'))
     mode = params.get("mode")
     dpaths = params.get("dpaths")
+    offset_events = params.get("offset_events")
     signal_channel = params.get("signal_channel")
     reference_channel = params.get("reference_channel")
     deltaf_options = params.get("deltaf_options")
@@ -108,7 +109,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 manualframe = None
             ProcessEvents(seg=segment, tolerance=.1, evtframe=evtframe, 
                 name='Events', mode=mode, manualframe=manualframe, 
-                event_col='Bout type', start_col='Bout start', end_col='Bout end')
+                event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=offset_events[dpath_ind])
             print('Done!')
             # Takes processed events and segments them by trial number. Trial start
             # is determined by events in the list 'start' from LoadEventParams. This
@@ -419,68 +420,69 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 print('Done!')
             ##################### Quantification #################################
                 PrintNoNewLine('Performing statistical testing on baseline vs response periods...')
-                # Generating summary statistics
-                if quantification == 'AUC':
-                    base = np.trapz(zscores[baseline_window[0]:baseline_window[1]], axis=0)
-                    resp = np.trapz(zscores[response_window[0]:response_window[1]], axis=0)
-                    ylabel = 'AUC'
-                elif quantification == 'mean':
-                    base = np.mean(zscores[baseline_window[0]:baseline_window[1]], axis=0)
-                    resp = np.mean(zscores[response_window[0]:response_window[1]], axis=0)
-                    ylabel = 'Z-Score or DeltaF/F'
-                elif quantification == 'median':
-                    base = np.median(zscores[baseline_window[0]:baseline_window[1]], axis=0)
-                    resp = np.median(zscores[response_window[0]:response_window[1]], axis=0)
-                    ylabel = 'Z-Score or DeltaF/F'
+                if quantification is not None:
+                    # Generating summary statistics
+                    if quantification == 'AUC':
+                        base = np.trapz(zscores[baseline_window[0]:baseline_window[1]], axis=0)
+                        resp = np.trapz(zscores[response_window[0]:response_window[1]], axis=0)
+                        ylabel = 'AUC'
+                    elif quantification == 'mean':
+                        base = np.mean(zscores[baseline_window[0]:baseline_window[1]], axis=0)
+                        resp = np.mean(zscores[response_window[0]:response_window[1]], axis=0)
+                        ylabel = 'Z-Score or DeltaF/F'
+                    elif quantification == 'median':
+                        base = np.median(zscores[baseline_window[0]:baseline_window[1]], axis=0)
+                        resp = np.median(zscores[response_window[0]:response_window[1]], axis=0)
+                        ylabel = 'Z-Score or DeltaF/F'
 
-                if isinstance(base, pd.core.series.Series):
-                    base = base.values
-                    resp = resp.values
+                    if isinstance(base, pd.core.series.Series):
+                        base = base.values
+                        resp = resp.values
 
-                base_sem = np.mean(base)/np.sqrt(base.shape[0])
-                resp_sem = np.mean(resp)/np.sqrt(resp.shape[0])
+                    base_sem = np.mean(base)/np.sqrt(base.shape[0])
+                    resp_sem = np.mean(resp)/np.sqrt(resp.shape[0])
 
-                # Testing for normality (D'Agostino's K-Squared Test) (N>8)
-                if base.shape[0] > 8:
-                    normal_alpha = 0.05
-                    base_normal = stats.normaltest(base)
-                    resp_normal = stats.normaltest(resp)
-                else:
-                    normal_alpha = 0.05
-                    base_normal = [1, 1]
-                    resp_normal = [1, 1]
+                    # Testing for normality (D'Agostino's K-Squared Test) (N>8)
+                    if base.shape[0] > 8:
+                        normal_alpha = 0.05
+                        base_normal = stats.normaltest(base)
+                        resp_normal = stats.normaltest(resp)
+                    else:
+                        normal_alpha = 0.05
+                        base_normal = [1, 1]
+                        resp_normal = [1, 1]
 
-                difference_alpha = 0.05
-                if (base_normal[1] >= normal_alpha) or (resp_normal[1] >= normal_alpha):
-                    test = 'Wilcoxon Signed-Rank Test'
-                    stats_results = stats.wilcoxon(base, resp)
-                else:
-                    test = 'Paired Sample T-Test'
-                    stats_results = stats.ttest_rel(base, resp)
+                    difference_alpha = 0.05
+                    if (base_normal[1] >= normal_alpha) or (resp_normal[1] >= normal_alpha):
+                        test = 'Wilcoxon Signed-Rank Test'
+                        stats_results = stats.wilcoxon(base, resp)
+                    else:
+                        test = 'Paired Sample T-Test'
+                        stats_results = stats.ttest_rel(base, resp)
 
-                if stats_results[1] <= difference_alpha:
-                    sig = '**'
-                else:
-                    sig = 'ns'
+                    if stats_results[1] <= difference_alpha:
+                        sig = '**'
+                    else:
+                        sig = 'ns'
 
-                #curr_ax = plt.axes() 
-                curr_ax = ax5
-                ind = np.arange(2)
-                labels = ['baseline', 'response']
-                bar_kwargs = {'width': 0.7,'color': ['.6', 'r'],'linewidth':2,'zorder':5}
-                err_kwargs = {'zorder':0,'fmt': 'none','linewidth':2,'ecolor':'k'}
-                curr_ax.bar(ind, [base.mean(), resp.mean()], tick_label=labels, **bar_kwargs)
-                curr_ax.errorbar(ind, [base.mean(), resp.mean()], yerr=[base_sem, resp_sem],capsize=5, **err_kwargs)
-                x1, x2 = 0, 1
-                y = np.max([base.mean(), resp.mean()]) + np.max([base_sem, resp_sem])*1.3
-                h = y * 1.5
-                col = 'k'
-                curr_ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
-                curr_ax.text((x1+x2)*.5, y+h, sig, ha='center', va='bottom', color=col)
-                curr_ax.set_ylabel(ylabel)
-                curr_ax.set_title('Baseline vs. Response Changes in Z-Score or DeltaF/F Signal \n {} of {}s'.format(test, quantification))
+                    #curr_ax = plt.axes() 
+                    curr_ax = ax5
+                    ind = np.arange(2)
+                    labels = ['baseline', 'response']
+                    bar_kwargs = {'width': 0.7,'color': ['.6', 'r'],'linewidth':2,'zorder':5}
+                    err_kwargs = {'zorder':0,'fmt': 'none','linewidth':2,'ecolor':'k'}
+                    curr_ax.bar(ind, [base.mean(), resp.mean()], tick_label=labels, **bar_kwargs)
+                    curr_ax.errorbar(ind, [base.mean(), resp.mean()], yerr=[base_sem, resp_sem],capsize=5, **err_kwargs)
+                    x1, x2 = 0, 1
+                    y = np.max([base.mean(), resp.mean()]) + np.max([base_sem, resp_sem])*1.3
+                    h = y * 1.5
+                    col = 'k'
+                    curr_ax.plot([x1, x1, x2, x2], [y, y+h, y+h, y], lw=1.5, c=col)
+                    curr_ax.text((x1+x2)*.5, y+h, sig, ha='center', va='bottom', color=col)
+                    curr_ax.set_ylabel(ylabel)
+                    curr_ax.set_title('Baseline vs. Response Changes in Z-Score or DeltaF/F Signal \n {} of {}s'.format(test, quantification))
 
-                print('Done!')
+                    print('Done!')
             ################# Save Stuff ##################################
                 PrintNoNewLine('Saving everything...')
                 save_path = os.path.join(dpath, segment_name, save_file_as)
