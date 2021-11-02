@@ -25,7 +25,7 @@ import itertools
 import re
 from imaging_analysis import utils
 
-def LoadEventParams(dpath=None, evtdict=None, mode='TTL'):
+def LoadEventParams(dpath=None, evtdict=None, mode='TTL', offset_events=None):
     """Checks that loaded event parameters (either through a directory path or
     from direct input (dpath vs evtdict)). Returns three dataframes and three lists
     in this order: startoftrial, endoftrial, epochs, event_type, plot, results
@@ -296,21 +296,26 @@ def ProcessEventList(eventlist=None, tolerance=None, evtframe=None,
 def InterleaveEvents(list1, list2):
     return np.array(list(itertools.chain(*list(zip(list1, list2)))))
 
-def SpoofEvents(dataframe, event_col='Bout type', start_col='Bout start', end_col='Bout end'):
+def SpoofEvents(dataframe, event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=None):
     """Given a dataframe of events to spoof, adds event labels with times"""
     # Read file
     dataframe = FormatManualExcelFile(dataframe)
+    offset = 0
+    if isinstance(offset_events, float):
+        offset = offset_events
+    elif isinstance(offset_events, str):
+        offset = GetImagingDataTTL(offset_events)
     # Create start events
     start_events = dataframe[event_col].values
-    start_times = dataframe[start_col].values
-    end_times = dataframe[end_col].values
+    start_times = dataframe[start_col].values + offset
+    end_times = dataframe[end_col].values + offset
     end_events = np.repeat('end', dataframe[end_col].shape[0])
     eventtimes = InterleaveEvents(start_times, end_times)
     eventlabels = InterleaveEvents(start_events, end_events)
     return eventtimes, eventlabels
 
 def ProcessEvents(seg=None, tolerance=None, evtframe=None, name='Events', mode='TTL', 
-        manualframe=None, event_col='Bout type', start_col='Bout start', end_col='Bout end'):
+        manualframe=None, event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=None):
     """Takes a segment object, tolerance, and event dataframe"""
     # Makes sure that seg is a segment object
     if not isinstance(seg, neo.core.segment.Segment):
@@ -326,7 +331,7 @@ def ProcessEvents(seg=None, tolerance=None, evtframe=None, name='Events', mode='
                 tolerance=tolerance, evtframe=evtframe, time_name='times', ch_name='ch')
         elif mode == 'manual':
             eventtimes, eventlabels = SpoofEvents(manualframe, event_col=event_col, 
-                start_col=start_col, end_col=end_col)
+                start_col=start_col, end_col=end_col, offset_events=offset_events)
         # Creates an Event object
         results = Event(times=np.array(eventtimes) * pq.s,
             labels=np.array(eventlabels, dtype='S'), name=name)
