@@ -499,11 +499,12 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 zscores.index.name = 'time'
                 zscores.to_csv(save_path + '_zscores_or_deltaf_aligned.csv')
                 Downsample(zscores, downsample, index_col='time').to_csv(save_path + '_zscores_or_deltaf_aligned_downsampled.csv')
-                # Trial point estimates
-                point_estimates = pd.DataFrame({'baseline': base, 'response': resp}, 
-                    index=np.arange(1, base.shape[0]+1))
-                point_estimates.index.name = 'trial'
-                point_estimates.to_csv(save_path + '_point_estimates.csv')
+                if quantification is not None:
+                    # Trial point estimates
+                    point_estimates = pd.DataFrame({'baseline': base, 'response': resp}, 
+                        index=np.arange(1, base.shape[0]+1))
+                    point_estimates.index.name = 'trial'
+                    point_estimates.to_csv(save_path + '_point_estimates.csv')
                 # Save meta data
                 metadata = {
                     'baseline_window': baseline_window,

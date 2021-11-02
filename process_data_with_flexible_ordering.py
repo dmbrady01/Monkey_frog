@@ -638,11 +638,12 @@ def main(file: str) -> None:
                 if downsample > 0:
                     zscores = Downsample(zscores, downsample, index_col='time')
                 zscores.to_csv(save_path + '_zscores_aligned.csv')
-                # Trial point estimates
-                point_estimates = pd.DataFrame({'baseline': base, 'response': resp}, 
-                    index=np.arange(1, resp.shape[0]+1)).ffill().bfill()
-                point_estimates.index.name = 'trial'
-                point_estimates.to_csv(save_path + '_point_estimates.csv')
+                if quantification is not None:
+                    # Trial point estimates
+                    point_estimates = pd.DataFrame({'baseline': base, 'response': resp}, 
+                        index=np.arange(1, resp.shape[0]+1)).ffill().bfill()
+                    point_estimates.index.name = 'trial'
+                    point_estimates.to_csv(save_path + '_point_estimates.csv')
                 # Save meta data
                 metadata = {
                     'baseline_window': baseline_window,
