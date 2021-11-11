@@ -42,6 +42,7 @@ def main(file: str) -> None:
     sns.set_style('darkgrid')
     ############## PART 1 Preprocess data ##########################
     ##################### Kazu/Mike Section ###############################
+    print(f"LOADING PARAMETERS FROM {file}")
     params = json.load(open(file, 'r'))
     mode = params.get("mode")
     dpaths = params.get("dpaths")

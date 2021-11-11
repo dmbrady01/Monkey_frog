@@ -31,6 +31,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
     sns.set_style('darkgrid')
     ############## PART 1 Preprocess data ##########################
     ################ Loading params ####################
+    print(f"LOADING PARAMETERS FROM {file}")
     params = json.load(open(file, 'r'))
     mode = params.get("mode")
     dpaths = params.get("dpaths")
