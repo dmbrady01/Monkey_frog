@@ -142,18 +142,18 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
         # for segment in seglist:
             for block in analysis_blocks:
                 # Extract analysis block params
-                epoch_name = block['epoch_name']
-                event = block['event']
-                prewindow = block['prewindow']
-                postwindow = block['postwindow']
-                downsample = block['downsample']
-                z_score_window = block['z_score_window']
-                quantification = block['quantification']
-                baseline_window = block['baseline_window']
-                response_window = block['response_window']
-                save_file_as = block['save_file_as']
-                heatmap_range = block['plot_paramaters']['heatmap_range']
-                smoothing_window = block['plot_paramaters']['smoothing_window']
+                epoch_name = block.get('epoch_name', 'epoch')
+                event = block.get('event', 'social')
+                prewindow = block.get('prewindow', 10)
+                postwindow = block.get('postwindow', 10)
+                downsample = block.get('downsample', 10)
+                z_score_window = block.get('z_score_window', [])
+                quantification = block.get('quantification', 'mean')
+                baseline_window = block.get('baseline_window', [-5, 0])
+                response_window = block.get('response_window', [0, 1])
+                save_file_as = block.get('save_file_as', 'saved_file')
+                heatmap_range = block.get('plot_paramaters', {}).get('heatmap_range', [None, None])
+                smoothing_window = block.get('plot_paramaters', {}).get('smoothing_window', 200)
 
                 lookup = {}
                 for channel in ['Filtered_signal', 'Filtered_reference', 'Detrended', 'Detrended_reference', 'DeltaF_F_or_Z_score']:
