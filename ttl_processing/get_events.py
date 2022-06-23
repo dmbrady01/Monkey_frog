@@ -12,14 +12,18 @@ class GetEvents(object):
     def _load_segment(self) -> None:
         self.segment = ReadNeoTdt(path=self.path, return_block=False)[0]
     
-    def _get_events(self) -> None:
+    def _get_events(self) -> pd.DataFrame:
         events = [e for e in self.segment.events if e.name == self.channel]
         self.events = pd.DataFrame({'time': events[0].times})
-        self.events
+        return self.events
 
-    def _convert_ttl_to_dataframe(self) -> None:
+    def _write_to_file(self, df: pd.DataFrame, filename: str) -> None:
+        write_path = pathlib.Path(self.path).joinpath(filename)
+        df.to_csv(write_path, index=False)
+
+    def _convert_ttl_to_dataframe(self) -> pd.DataFrame:
         self._load_segment()
-        self._get_events()
+        return self._get_events()
 
 class GetMovementBouts(GetEvents):
 
@@ -41,30 +45,44 @@ class GetMovementBouts(GetEvents):
         self.bouts = self.bouts.loc[self.bouts['Bout duration'] >= self.min_bout, :]
         self.bouts.reset_index(drop=True, inplace=True)
     
-    def _write_to_file(self) -> None:
-        write_path = pathlib.Path(self.path).joinpath('movement_bouts.csv')
-        self.bouts.to_csv(write_path, index=False)
-    
     def run(self) -> None:
         self._convert_ttl_to_dataframe()
         self._calculate_bout_number()
         self._calculate_bout_timing()
-        self._write_to_file()
+        self._write_to_file(df=self.bouts, filename='movement_bouts.csv')
 
-def get_movement_bouts(path: str, channel: str, min_bout: float, anneal_duration: float) -> None:
+def _get_ttl_events(path: str, channel: str, filename: str) -> None:
+    gb = GetEvents(path=path, channel=channel)
+    df = gb._convert_ttl_to_dataframe()
+    gb._write_to_file(df=df, filename=filename)
+
+def _get_movement_bouts(path: str, channel: str, min_bout: float, anneal_duration: float) -> None:
     gmb = GetMovementBouts(path=path, channel=channel, min_bout=min_bout, anneal_duration=anneal_duration)
     gmb.run()
 
-@click.command()
+@click.group()
+def cli() -> None:
+    "Group of cli methods"
+
+@cli.command()
+@click.option('-p', '--path', help='Path to the data folder')
+@click.option('-c', '--channel', default='PC2/', help='TTL channel with events of interest', show_default=True)
+@click.option('-f', '--filename', default='event_timestamps.csv', help='Name for the CSV output file', show_default=True)
+def get_ttl_events(path: str, channel: str, filename: str) -> None:
+    """Given a folder, TTL channel, and file name, will extract those events, and write the 
+    timestamps to a CSV file."""
+    _get_ttl_events(path=path, channel=channel, filename=filename)
+
+@cli.command()
 @click.option('-p', '--path', help='Path to the data folder')
 @click.option('-c', '--channel', default='PC0/', help='TTL channel with events of interest', show_default=True)
 @click.option('-m', '--min-bout', default=2.0, help='Minimum duration (seconds) for a bout', show_default=True)
 @click.option('-a', '--anneal-duration', default=0.2, help='Maximum time (seconds) between TTL pulses to be considered part of the same bout', show_default=True)
-def run(path: str, channel: str, min_bout: float, anneal_duration: float) -> None:
+def get_movement_bouts(path: str, channel: str, min_bout: float, anneal_duration: float) -> None:
     """Given a folder and TTL channel, will extract those events, and find start/end times
     for all movement bouts of min-bout duration and all TTL pulses in a bout having a latency
     less than anneal-duration."""
-    get_movement_bouts(path=path, channel=channel, min_bout=min_bout, anneal_duration=anneal_duration)
+    _get_movement_bouts(path=path, channel=channel, min_bout=min_bout, anneal_duration=anneal_duration)
 
 if __name__ == '__main__':
-    run()
+    cli()
