@@ -5,7 +5,7 @@ import pathlib
 from click.testing import CliRunner
 from typing import List
 
-from ttl_processing.get_events import GetEvents, GetMovementBouts, get_movement_bouts, run
+from ttl_processing.get_events import GetEvents, GetMovementBouts, get_ttl_events, get_movement_bouts, run
 
 class MockEvent(object):
     def __init__(self, name: str, times: List[float]):
@@ -37,9 +37,10 @@ class TestGetEvents(unittest.TestCase):
         ge = GetEvents(path='path', channel='channel')
         ge._load_segment = MagicMock()
         ge.segment = MockSegment()
-        ge._get_events()
+        df = ge._get_events()
         check_df = pd.DataFrame({'time': [1., 2.]})
         pd.testing.assert_frame_equal(check_df, ge.events)
+        assert isinstance(df, pd.DataFrame)
 
     def test_write_to_file(self):
         gb = GetEvents(path='path', channel='channel')
@@ -52,9 +53,11 @@ class TestGetEvents(unittest.TestCase):
         ge = GetEvents(path='path', channel='channel')
         ge._load_segment = MagicMock()
         ge._get_events = MagicMock()
-        ge._convert_ttl_to_dataframe()
+        ge._get_events.return_value = 'mydf'
+        df = ge._convert_ttl_to_dataframe()
         ge._load_segment.assert_called_once()
         ge._get_events.assert_called_once()
+        assert df == 'mydf'
 
 class TestGetMovementBouts(unittest.TestCase):
 
@@ -98,6 +101,13 @@ class TestGetMovementBouts(unittest.TestCase):
         gmb._write_to_file.assert_called_with(df='mybouts', filename='movement_bouts.csv')
 
 class TestCli(unittest.TestCase):
+
+    @patch.object(GetEvents, '_convert_ttl_to_dataframe', return_value='mydf')
+    @patch.object(GetEvents, '_write_to_file')
+    def test_get_ttl_events(self, mock_write, mock_convert):
+        get_ttl_events(path='mypath', channel='mychannel', filename='myfilename')
+        mock_convert.assert_called_once()
+        mock_write.assert_called_with(df='mydf', filename='myfilename')
 
     @patch.object(GetMovementBouts, 'run')
     def test_get_movement_bouts(self, mock_run):
