@@ -5,7 +5,7 @@ import pathlib
 from click.testing import CliRunner
 from typing import List
 
-from ttl_processing.get_events import GetEvents, GetMovementBouts, get_ttl_events, get_movement_bouts, run
+from ttl_processing.get_events import GetEvents, GetMovementBouts, _get_ttl_events, _get_movement_bouts, get_ttl_events, get_movement_bouts
 
 class MockEvent(object):
     def __init__(self, name: str, times: List[float]):
@@ -104,19 +104,26 @@ class TestCli(unittest.TestCase):
 
     @patch.object(GetEvents, '_convert_ttl_to_dataframe', return_value='mydf')
     @patch.object(GetEvents, '_write_to_file')
-    def test_get_ttl_events(self, mock_write, mock_convert):
-        get_ttl_events(path='mypath', channel='mychannel', filename='myfilename')
+    def test__get_ttl_events(self, mock_write, mock_convert):
+        _get_ttl_events(path='mypath', channel='mychannel', filename='myfilename')
         mock_convert.assert_called_once()
         mock_write.assert_called_with(df='mydf', filename='myfilename')
 
     @patch.object(GetMovementBouts, 'run')
-    def test_get_movement_bouts(self, mock_run):
-        get_movement_bouts('path', 'ch', 10, 1)
+    def test__get_movement_bouts(self, mock_run):
+        _get_movement_bouts('path', 'ch', 10, 1)
         mock_run.assert_called_once()
 
-    @patch("ttl_processing.get_events.get_movement_bouts")
-    def test_run(self, mock_get_bouts):
+    @patch("ttl_processing.get_events._get_ttl_events")
+    def test_get_ttl_events(self, mock_ttl_events):
         runner = CliRunner()
-        result = runner.invoke(run, ['--path', 'mypath', '--channel', 'mych', '--min-bout', 10, '--anneal-duration', 1])
+        result = runner.invoke(get_ttl_events, ['--path', 'mypath', '--channel', 'mych', '--filename', 'myfilename'])
+        assert result.exit_code == 0
+        mock_ttl_events.assert_called_with(path='mypath', channel='mych', filename='myfilename')
+
+    @patch("ttl_processing.get_events._get_movement_bouts")
+    def test_get_movement_bouts(self, mock_get_bouts):
+        runner = CliRunner()
+        result = runner.invoke(get_movement_bouts, ['--path', 'mypath', '--channel', 'mych', '--min-bout', 10, '--anneal-duration', 1])
         assert result.exit_code == 0
         mock_get_bouts.assert_called_with(path='mypath', channel='mych', min_bout=10, anneal_duration=1)
