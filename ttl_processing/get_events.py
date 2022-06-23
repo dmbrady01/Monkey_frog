@@ -17,6 +17,10 @@ class GetEvents(object):
         self.events = pd.DataFrame({'time': events[0].times})
         self.events
 
+    def _write_to_file(self, df: pd.DataFrame, filename: str) -> None:
+        write_path = pathlib.Path(self.path).joinpath(filename)
+        df.to_csv(write_path, index=False)
+
     def _convert_ttl_to_dataframe(self) -> None:
         self._load_segment()
         self._get_events()
@@ -41,15 +45,11 @@ class GetMovementBouts(GetEvents):
         self.bouts = self.bouts.loc[self.bouts['Bout duration'] >= self.min_bout, :]
         self.bouts.reset_index(drop=True, inplace=True)
     
-    def _write_to_file(self) -> None:
-        write_path = pathlib.Path(self.path).joinpath('movement_bouts.csv')
-        self.bouts.to_csv(write_path, index=False)
-    
     def run(self) -> None:
         self._convert_ttl_to_dataframe()
         self._calculate_bout_number()
         self._calculate_bout_timing()
-        self._write_to_file()
+        self._write_to_file(df=self.bouts, filename='movement_bouts.csv')
 
 def get_movement_bouts(path: str, channel: str, min_bout: float, anneal_duration: float) -> None:
     gmb = GetMovementBouts(path=path, channel=channel, min_bout=min_bout, anneal_duration=anneal_duration)

@@ -41,6 +41,13 @@ class TestGetEvents(unittest.TestCase):
         check_df = pd.DataFrame({'time': [1., 2.]})
         pd.testing.assert_frame_equal(check_df, ge.events)
 
+    def test_write_to_file(self):
+        gb = GetEvents(path='path', channel='channel')
+        mock_df = MagicMock()
+        gb._write_to_file(df=mock_df, filename='myfile.csv')
+        path_check = pathlib.Path('path/myfile.csv')
+        mock_df.to_csv.assert_called_with(path_check, index=False)
+
     def test_convert_ttl_to_dataframe(self):
         ge = GetEvents(path='path', channel='channel')
         ge._load_segment = MagicMock()
@@ -76,13 +83,6 @@ class TestGetMovementBouts(unittest.TestCase):
             'Bout duration': [4.8, 3.]
         })
         pd.testing.assert_frame_equal(check_df, gmb.bouts)
-    
-    def test_write_to_file(self):
-        gmb = GetMovementBouts(path='path', channel='channel', min_bout=2, anneal_duration=1)
-        gmb.bouts = MagicMock()
-        gmb._write_to_file()
-        path_check = pathlib.Path('path/movement_bouts.csv')
-        gmb.bouts.to_csv.assert_called_with(path_check, index=False)
 
     def test_run(self):
         gmb = GetMovementBouts(path='path', channel='channel', min_bout=2, anneal_duration=1)
@@ -90,11 +90,12 @@ class TestGetMovementBouts(unittest.TestCase):
         gmb._calculate_bout_number = MagicMock()
         gmb._calculate_bout_timing = MagicMock()
         gmb._write_to_file = MagicMock()
+        gmb.bouts = 'mybouts'
         gmb.run()
         gmb._convert_ttl_to_dataframe.assert_called_once()
         gmb._calculate_bout_number.assert_called_once()
         gmb._calculate_bout_timing.assert_called_once()
-        gmb._write_to_file.assert_called_once()
+        gmb._write_to_file.assert_called_with(df='mybouts', filename='movement_bouts.csv')
 
 class TestCli(unittest.TestCase):
 
