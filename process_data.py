@@ -148,6 +148,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 # Extract analysis block params
                 epoch_name = block.get('epoch_name', 'epoch')
                 event = block.get('event', 'social')
+                event_type = block.get('event_type', 'label')
                 prewindow = block.get('prewindow', 10)
                 postwindow = block.get('postwindow', 10)
                 downsample = block.get('downsample', 10)
@@ -167,7 +168,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                     lookup[channel] = dict_name 
                     PrintNoNewLine('Centering trials and analyzing...')
                     AlignEventsAndSignals(seg=segment, epoch_name=epoch_name, analog_ch_name=channel, 
-                        event_ch_name='Events', event=event, event_type='label', 
+                        event_ch_name='Events', event=event, event_type=event_type, 
                         prewindow=prewindow, postwindow=postwindow, window_type='event', 
                         clip=False, name=dict_name, to_csv=False, dpath=dpath)
                     print('Done!')

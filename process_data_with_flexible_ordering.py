@@ -201,6 +201,7 @@ def main(file: str) -> None:
                 # Extract analysis block params
                 epoch_name = block['epoch_name']
                 event = block['event']
+                event_type = block.get('event_type', 'label')
                 prewindow = block['prewindow']
                 postwindow = block['postwindow']
                 downsample = block['downsample']
@@ -228,7 +229,7 @@ def main(file: str) -> None:
                     lookup[channel] = dict_name
 
                     results = AlignEventsAndSignals(seg=segment, epoch_name=epoch_name, analog_ch_name=channel, 
-                        event_ch_name='Events', event=event, event_type='label', 
+                        event_ch_name='Events', event=event, event_type=event_type, 
                         prewindow=prewindow, postwindow=postwindow, window_type='event', 
                         clip=False, name=dict_name, to_csv=False, dpath=dpath)
                 print('Done!')
