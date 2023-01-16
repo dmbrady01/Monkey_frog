@@ -35,7 +35,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
     params = json.load(open(file, 'r'))
     mode = params.get("mode", "manual")
     dpaths = params.get("dpaths")
-    offset_events = params.get("offset_events")
+    offset_events = params.get("offset_events", [])
     signal_channel = params.get("signal_channel", "465A 1")
     reference_channel = params.get("reference_channel", "405A 1")
     deltaf_options = params.get("deltaf_options", {})
@@ -108,9 +108,13 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 manualframe = path_to_social_excel[dpath_ind]
             else:
                 manualframe = None
+            if len(offset_events) > 0:
+                offset_event = offset_events[dpath_ind]
+            else:
+                offset_event = None
             ProcessEvents(seg=segment, tolerance=.1, evtframe=evtframe, 
                 name='Events', mode=mode, manualframe=manualframe, 
-                event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=offset_events[dpath_ind])
+                event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=offset_event)
             print('Done!')
             # Takes processed events and segments them by trial number. Trial start
             # is determined by events in the list 'start' from LoadEventParams. This
@@ -144,6 +148,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                 # Extract analysis block params
                 epoch_name = block.get('epoch_name', 'epoch')
                 event = block.get('event', 'social')
+                event_type = block.get('event_type', 'label')
                 prewindow = block.get('prewindow', 10)
                 postwindow = block.get('postwindow', 10)
                 downsample = block.get('downsample', 10)
@@ -163,7 +168,7 @@ def process_data(file: str='./params.json') -> Tuple[pd.DataFrame, List[Any], Di
                     lookup[channel] = dict_name 
                     PrintNoNewLine('Centering trials and analyzing...')
                     AlignEventsAndSignals(seg=segment, epoch_name=epoch_name, analog_ch_name=channel, 
-                        event_ch_name='Events', event=event, event_type='label', 
+                        event_ch_name='Events', event=event, event_type=event_type, 
                         prewindow=prewindow, postwindow=postwindow, window_type='event', 
                         clip=False, name=dict_name, to_csv=False, dpath=dpath)
                     print('Done!')

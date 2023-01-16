@@ -48,7 +48,7 @@ def main(file: str) -> None:
     dpaths = params.get("dpaths")
     baseline_window_unaligned = params.get("baseline_window_unaligned")
     offsets_list = params.get("offsets_list")
-    offset_events = params.get("offset_events")
+    offset_events = params.get("offset_events", [])
     before_alignment = params.get("before_alignment")
     signal_channel = params.get("signal_channel")
     reference_channel = params.get("reference_channel")
@@ -158,9 +158,13 @@ def main(file: str) -> None:
                 manualframe = path_to_social_excel[dpath_ind]
             else:
                 manualframe = None
+            if len(offset_events) == 0:
+                offset_event = None
+            else:
+                offset_event = offset_events[dpath_ind]
             ProcessEvents(seg=segment, tolerance=.1, evtframe=evtframe, 
                 name='Events', mode=mode, manualframe=manualframe, 
-                event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=offset_events[dpath_ind])
+                event_col='Bout type', start_col='Bout start', end_col='Bout end', offset_events=offset_event)
             print('Done!')
             
 
@@ -197,6 +201,7 @@ def main(file: str) -> None:
                 # Extract analysis block params
                 epoch_name = block['epoch_name']
                 event = block['event']
+                event_type = block.get('event_type', 'label')
                 prewindow = block['prewindow']
                 postwindow = block['postwindow']
                 downsample = block['downsample']
@@ -224,7 +229,7 @@ def main(file: str) -> None:
                     lookup[channel] = dict_name
 
                     results = AlignEventsAndSignals(seg=segment, epoch_name=epoch_name, analog_ch_name=channel, 
-                        event_ch_name='Events', event=event, event_type='label', 
+                        event_ch_name='Events', event=event, event_type=event_type, 
                         prewindow=prewindow, postwindow=postwindow, window_type='event', 
                         clip=False, name=dict_name, to_csv=False, dpath=dpath)
                 print('Done!')

@@ -121,7 +121,7 @@ def AlignEventsAndSignals(seg=None, epoch_name=None, analog_ch_name=None,
     2) epoch_name: the type of epoch to analyze (e.g. 'omission', 'correct_correct')
     3) analog_ch_name: name of the analog channel to analyze (e.g. 'deltaf_f')
     4) event: the event to align by (e.g. 'result', 'iti_start', 'start')
-    5) event_class: 'label' means the exact name of an event ('iti_start',
+    5) event_type: 'label' means the exact name of an event ('iti_start',
     'tray_activated'), 'type' means the type of event specified in event_params.json
     ('results', 'start', 'end')
     6) prewindow: time in seconds to begin collecting before event or trial
